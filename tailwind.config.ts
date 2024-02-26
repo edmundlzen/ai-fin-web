@@ -9,6 +9,11 @@ export default {
         sans: ["Lato", ...fontFamily.sans],
         serif: ["Trocchi", ...fontFamily.serif],
       },
+      colors: {
+        primary: "hsla(236, 61%, 32%, 1)",
+        secondary: "hsla(223, 100%, 79%, 1)",
+        tertiary: "hsla(223, 100%, 93%, 1)",
+      },
     },
   },
   plugins: [require("tailwindcss-hero-patterns")],
