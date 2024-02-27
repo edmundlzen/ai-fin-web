@@ -9,7 +9,7 @@ const SignUpSchema = Yup.object().shape({
 export default function Login() {
   return (
     <main className="flex h-screen items-center justify-center overflow-y-scroll bg-[length:100px_100px] heropattern-wiggle-slate-50">
-      <div className="min-h-4/5 h-fit w-4/5 rounded-md border border-slate-200 bg-white">
+      <div className="min-h-4/5 h-fit w-5/6 rounded-md border border-slate-200 bg-white">
         <h1 className="mt-4 text-center font-serif text-2xl font-normal">
           Login
         </h1>

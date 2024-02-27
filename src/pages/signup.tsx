@@ -26,7 +26,7 @@ const SignUpSchema = Yup.object().shape({
 export default function SignUp() {
   return (
     <main className="flex h-screen items-center justify-center overflow-y-scroll bg-[length:100px_100px] heropattern-wiggle-slate-50">
-      <div className="min-h-4/5 h-fit w-4/5 rounded-md border border-slate-200 bg-white">
+      <div className="min-h-4/5 h-fit w-5/6 rounded-md border border-slate-200 bg-white">
         <h1 className="mt-4 text-center font-serif text-2xl font-normal">
           Sign Up
         </h1>
@@ -102,7 +102,7 @@ export default function SignUp() {
               </div>
               <button
                 type="submit"
-                className="bg-tertiary text-primary border-secondary !mt-12 rounded-md border p-3 text-sm font-bold"
+                className="!mt-12 rounded-md border border-secondary bg-tertiary p-3 text-sm font-bold text-primary"
               >
                 Sign Up
               </button>
