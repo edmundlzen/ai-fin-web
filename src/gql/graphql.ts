@@ -17,6 +17,15 @@ export type Scalars = {
   DateTime: { input: any; output: any; }
 };
 
+export enum AnnualIncome {
+  From10KTo25K = 'From10KTo25K',
+  From25KTo50K = 'From25KTo50K',
+  From50KTo100K = 'From50KTo100K',
+  From100KTo200K = 'From100KTo200K',
+  LessThan10K = 'LessThan10K',
+  MoreThan200K = 'MoreThan200K'
+}
+
 export type CreateFinancialGoalInput = {
   /** Amount of the financial goal */
   amount: Scalars['Int']['input'];
@@ -27,6 +36,50 @@ export type CreateFinancialGoalInput = {
   /** Name of the financial goal */
   name: Scalars['String']['input'];
 };
+
+export type CreateOrUpdateUserInfoInput = {
+  /** Annual income of the user */
+  annual_income: AnnualIncome;
+  /** Estimated liabilities of the user */
+  estimated_liabilities: EstimatedLiabilities;
+  /** Estimated monthly expenses of the user */
+  estimated_monthly_expenses: EstimatedMonthlyExpenses;
+  /** Expected annual return of the user */
+  expected_annual_return: ExpectedAnnualReturn;
+  /** Whether the user has invested before */
+  invested_before: Scalars['Boolean']['input'];
+  /** Investment horizon of the user */
+  investment_horizon: InvestmentHorizon;
+  /** Risk tolerance of the user */
+  risk_tolerance: RiskTolerance;
+  /** User ID of the user info to be created or updated */
+  user_id: Scalars['String']['input'];
+};
+
+export enum EstimatedLiabilities {
+  From10KTo25K = 'From10KTo25K',
+  From25KTo50K = 'From25KTo50K',
+  From50KTo100K = 'From50KTo100K',
+  From100KTo200K = 'From100KTo200K',
+  LessThan10K = 'LessThan10K',
+  MoreThan200K = 'MoreThan200K'
+}
+
+export enum EstimatedMonthlyExpenses {
+  From1KTo2K = 'From1KTo2K',
+  From2KTo3K = 'From2KTo3K',
+  From3KTo4K = 'From3KTo4K',
+  From4KTo5K = 'From4KTo5K',
+  LessThan1K = 'LessThan1K',
+  MoreThan5K = 'MoreThan5K'
+}
+
+export enum ExpectedAnnualReturn {
+  From5To10Percent = 'From5To10Percent',
+  From10To15Percent = 'From10To15Percent',
+  LessThan5Percent = 'LessThan5Percent',
+  MoreThan15Percent = 'MoreThan15Percent'
+}
 
 export type FinancialGoal = {
   __typename?: 'FinancialGoal';
@@ -39,9 +92,17 @@ export type FinancialGoal = {
   userId: Scalars['String']['output'];
 };
 
+export enum InvestmentHorizon {
+  From1To3Years = 'From1To3Years',
+  From3To5Years = 'From3To5Years',
+  LessThan1Year = 'LessThan1Year',
+  MoreThan5Years = 'MoreThan5Years'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   createFinancialGoal: FinancialGoal;
+  createOrUpdateUserInfo: UserInfo;
   removeFinancialGoal: FinancialGoal;
   removeUser: User;
   signupUser: User;
@@ -52,6 +113,11 @@ export type Mutation = {
 
 export type MutationCreateFinancialGoalArgs = {
   createFinancialGoalInput: CreateFinancialGoalInput;
+};
+
+
+export type MutationCreateOrUpdateUserInfoArgs = {
+  createOrUpdateUserInfoInput: CreateOrUpdateUserInfoInput;
 };
 
 
@@ -81,8 +147,14 @@ export type MutationUpdateUserArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  UserInfo: UserInfo;
   financialGoal: FinancialGoal;
   user: User;
+};
+
+
+export type QueryUserInfoArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -94,6 +166,12 @@ export type QueryFinancialGoalArgs = {
 export type QueryUserArgs = {
   id: Scalars['String']['input'];
 };
+
+export enum RiskTolerance {
+  High = 'High',
+  Low = 'Low',
+  Medium = 'Medium'
+}
 
 export type SignupUserInput = {
   /** Birth year of the user */
@@ -142,4 +220,16 @@ export type User = {
   id: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   username: Scalars['String']['output'];
+};
+
+export type UserInfo = {
+  __typename?: 'UserInfo';
+  annual_income: AnnualIncome;
+  estimated_liabilities: EstimatedLiabilities;
+  estimated_monthly_expenses: EstimatedMonthlyExpenses;
+  expected_annual_return: ExpectedAnnualReturn;
+  invested_before: Scalars['Boolean']['output'];
+  investment_horizon: InvestmentHorizon;
+  risk_tolerance: RiskTolerance;
+  userId: Scalars['String']['output'];
 };
