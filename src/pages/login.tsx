@@ -45,7 +45,7 @@ export default function Login() {
               </div>
               <button
                 type="submit"
-                className="bg-tertiary text-primary border-secondary !mt-12 rounded-md border p-3 text-sm font-bold"
+                className="!mt-12 rounded-md border border-secondary bg-tertiary p-3 text-sm font-bold text-primary"
               >
                 Login
               </button>
