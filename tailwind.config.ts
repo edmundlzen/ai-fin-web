@@ -13,6 +13,7 @@ export default {
         primary: "hsla(236, 61%, 32%, 1)",
         secondary: "hsla(223, 100%, 79%, 1)",
         tertiary: "hsla(223, 100%, 93%, 1)",
+        background: "#f9fafc",
       },
     },
   },
