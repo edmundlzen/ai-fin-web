@@ -21,7 +21,7 @@ const config = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "emojipedia-us.s3.dualstack.us-west-1.amazonaws.com",
+        hostname: "em-content.zobj.net",
       },
     ],
   },
