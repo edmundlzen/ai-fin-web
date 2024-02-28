@@ -17,6 +17,14 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "emojipedia-us.s3.dualstack.us-west-1.amazonaws.com",
+      },
+    ],
+  },
 };
 
 export default config;
