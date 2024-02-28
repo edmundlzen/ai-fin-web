@@ -31,7 +31,7 @@ export default function Quiz() {
           annualIncome: "",
           estimatedLiabilities: "",
           estimatedMonthlyExpenses: "",
-          investedBefore: false,
+          investedBefore: "",
           riskTolerance: "",
           expectedAnnualReturn: "",
           investmentHorizon: "",
@@ -141,6 +141,7 @@ export default function Quiz() {
                 title="Investment"
                 reverse={reverse}
                 withBack
+                submitButton
                 questions={[
                   {
                     label: "Have you invested before?",
@@ -197,24 +198,6 @@ export default function Quiz() {
                     })),
                   },
                 ]}
-                onSubmit={() => {
-                  void (async () => {
-                    await setTouched({
-                      investedBefore: true,
-                      riskTolerance: true,
-                      expectedAnnualReturn: true,
-                      investmentHorizon: true,
-                    });
-                    if (
-                      !errors.investedBefore &&
-                      !errors.riskTolerance &&
-                      !errors.expectedAnnualReturn &&
-                      !errors.investmentHorizon
-                    ) {
-                      setActiveSection(3);
-                    }
-                  })();
-                }}
                 onBack={() => {
                   setReverse(true);
                   setActiveSection(1);
@@ -261,6 +244,7 @@ function QuestionPage({
   withBack,
   onBack,
   reverse,
+  submitButton,
 }: {
   title: string;
   questions: {
@@ -272,10 +256,11 @@ function QuestionPage({
       value: string;
     }>;
   }[];
-  onSubmit: () => void;
+  onSubmit?: () => void;
   withBack?: boolean;
   onBack?: () => void;
   reverse?: boolean;
+  submitButton?: boolean;
 }) {
   return (
     <motion.div
@@ -326,13 +311,13 @@ function QuestionPage({
             </button>
           )}
           <button
-            type="button"
+            type={submitButton ? "submit" : "button"}
             className="!mt-12 w-full rounded-md border border-secondary bg-tertiary p-3 text-sm font-bold text-primary"
             onClick={() => {
-              onSubmit();
+              onSubmit?.();
             }}
           >
-            Continue
+            {submitButton ? "Save" : "Continue"}
           </button>
         </div>
       </Form>

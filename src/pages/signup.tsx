@@ -1,6 +1,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { ChangeEvent, useEffect } from "react";
 import * as Yup from "yup";
+import { Box } from "~/components";
 
 const SignUpSchema = Yup.object().shape({
   username: Yup.string()
@@ -26,7 +27,7 @@ const SignUpSchema = Yup.object().shape({
 export default function SignUp() {
   return (
     <main className="flex h-screen items-center justify-center overflow-y-scroll bg-[length:100px_100px] heropattern-wiggle-slate-50">
-      <div className="min-h-4/5 h-fit w-5/6 rounded-md border border-slate-200 bg-white">
+      <Box className="min-h-4/5 h-fit w-5/6">
         <h1 className="mt-4 text-center font-serif text-2xl font-normal">
           Sign Up
         </h1>
@@ -109,7 +110,7 @@ export default function SignUp() {
             </Form>
           )}
         </Formik>
-      </div>
+      </Box>
     </main>
   );
 }

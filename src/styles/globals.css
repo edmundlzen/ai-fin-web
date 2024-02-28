@@ -10,3 +10,7 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+* {
+  color: #0b0d13;
+}
