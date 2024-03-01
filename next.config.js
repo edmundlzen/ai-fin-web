@@ -23,6 +23,10 @@ const config = {
         protocol: "https",
         hostname: "em-content.zobj.net",
       },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
     ],
   },
 };
