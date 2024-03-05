@@ -1,10 +1,63 @@
 import { Box, Emoji } from "~/components";
 import { Icon } from "@iconify-icon/react";
 import { useEffect, useState } from "react";
+import Chart from "~/components/Chart";
+
+type SavingsData = {
+  month: string;
+  amount: number;
+};
 
 const TEST_SAVINGS_DATA = [
-  2000, 3000, 4000, 3000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000,
-];
+  {
+    month: "Jan",
+    amount: 1000,
+  },
+  {
+    month: "Feb",
+    amount: 2000,
+  },
+  {
+    month: "Mar",
+    amount: 7000,
+  },
+  {
+    month: "Apr",
+    amount: 2000,
+  },
+  {
+    month: "May",
+    amount: 9000,
+  },
+  {
+    month: "Jun",
+    amount: 2000,
+  },
+  {
+    month: "Jul",
+    amount: 3000,
+  },
+  {
+    month: "Aug",
+    amount: 1000,
+  },
+  {
+    month: "Sep",
+    amount: 9000,
+  },
+  {
+    month: "Oct",
+    amount: 2000,
+  },
+  {
+    month: "Nov",
+    amount: 11000,
+  },
+  {
+    month: "Dec",
+    amount: 12000,
+  },
+] as SavingsData[];
 
 export default function Dashboard() {
   return (
@@ -119,7 +172,30 @@ export default function Dashboard() {
           </div>
           <div className="ml-2 text-xs text-tertiary-text">from last month</div>
         </div>
-        <div className="mt-2">chart</div>
+        <div className="mt-2 h-48 w-full">
+          <Chart
+            className="flex items-center justify-center"
+            options={{
+              data: [
+                {
+                  label: "Savings",
+                  data: TEST_SAVINGS_DATA,
+                },
+              ],
+              primaryAxis: {
+                getValue: (datum) => datum.month,
+                scaleType: "band",
+              },
+              secondaryAxes: [
+                {
+                  getValue: (datum) => datum.amount,
+                  scaleType: "linear",
+                  elementType: "line",
+                },
+              ],
+            }}
+          />
+        </div>
       </Box>
     </main>
   );
