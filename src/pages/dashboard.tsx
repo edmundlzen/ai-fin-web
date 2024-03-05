@@ -2,6 +2,10 @@ import { Box, Emoji } from "~/components";
 import { Icon } from "@iconify-icon/react";
 import { useEffect, useState } from "react";
 
+const TEST_SAVINGS_DATA = [
+  2000, 3000, 4000, 3000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000,
+];
+
 export default function Dashboard() {
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
@@ -102,6 +106,20 @@ export default function Dashboard() {
             </p>
           </div>
         </Box>
+      </Box>
+      <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
+        <h2 className="w-full text-2xl font-bold tracking-tight">
+          Total savings
+        </h2>
+        <div className="flex w-full items-baseline">
+          <h3 className="mt-1 text-4xl font-bold">RM 58,999</h3>
+          <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
+            <Icon icon="ant-design:rise-outlined" className="text-positive" />
+            25%
+          </div>
+          <div className="ml-2 text-xs text-tertiary-text">from last month</div>
+        </div>
+        <div className="mt-2">chart</div>
       </Box>
     </main>
   );

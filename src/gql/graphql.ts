@@ -56,6 +56,12 @@ export type CreateOrUpdateUserInfoInput = {
   user_id: Scalars['String']['input'];
 };
 
+export type CreateTransactionInput = {
+  amount: Scalars['Int']['input'];
+  financial_goal_id: Scalars['String']['input'];
+  wallet_id: Scalars['String']['input'];
+};
+
 export enum EstimatedLiabilities {
   From10KTo25K = 'From10KTo25K',
   From25KTo50K = 'From25KTo50K',
@@ -84,11 +90,15 @@ export enum ExpectedAnnualReturn {
 export type FinancialGoal = {
   __typename?: 'FinancialGoal';
   amount: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
   created_at: Scalars['DateTime']['output'];
+  deletedAt: Scalars['DateTime']['output'];
   emoji: Scalars['String']['output'];
   id: Scalars['String']['output'];
   monthly_contribution_goal: Scalars['Int']['output'];
   name: Scalars['String']['output'];
+  transaction: Array<Transaction>;
+  updatedAt: Scalars['DateTime']['output'];
   userId: Scalars['String']['output'];
 };
 
@@ -103,10 +113,13 @@ export type Mutation = {
   __typename?: 'Mutation';
   createFinancialGoal: FinancialGoal;
   createOrUpdateUserInfo: UserInfo;
+  createTransaction: Transaction;
   removeFinancialGoal: FinancialGoal;
+  removeTransaction: Transaction;
   removeUser: User;
   signupUser: User;
   updateFinancialGoal: FinancialGoal;
+  updateTransaction: Transaction;
   updateUser: User;
 };
 
@@ -121,7 +134,17 @@ export type MutationCreateOrUpdateUserInfoArgs = {
 };
 
 
+export type MutationCreateTransactionArgs = {
+  createTransactionInput: CreateTransactionInput;
+};
+
+
 export type MutationRemoveFinancialGoalArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveTransactionArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -141,20 +164,37 @@ export type MutationUpdateFinancialGoalArgs = {
 };
 
 
+export type MutationUpdateTransactionArgs = {
+  updateTransactionInput: UpdateTransactionInput;
+};
+
+
 export type MutationUpdateUserArgs = {
   updateUserInput: UpdateUserInput;
 };
 
 export type Query = {
   __typename?: 'Query';
+  Transaction: Transaction;
   UserInfo: UserInfo;
+  Wallet: Wallet;
   financialGoal: FinancialGoal;
   user: User;
 };
 
 
+export type QueryTransactionArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type QueryUserInfoArgs = {
   userId: Scalars['String']['input'];
+};
+
+
+export type QueryWalletArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -186,6 +226,16 @@ export type SignupUserInput = {
   username: Scalars['String']['input'];
 };
 
+export type Transaction = {
+  __typename?: 'Transaction';
+  amount: Scalars['Int']['output'];
+  financial_goal: FinancialGoal;
+  financial_goal_id: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  wallet: Wallet;
+  wallet_id: Scalars['String']['output'];
+};
+
 export type UpdateFinancialGoalInput = {
   /** Amount of the financial goal */
   amount?: InputMaybe<Scalars['Int']['input']>;
@@ -196,6 +246,13 @@ export type UpdateFinancialGoalInput = {
   monthly_contribution_goal?: InputMaybe<Scalars['Int']['input']>;
   /** Name of the financial goal */
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateTransactionInput = {
+  amount?: InputMaybe<Scalars['Int']['input']>;
+  financial_goal_id?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  wallet_id?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateUserInput = {
@@ -215,21 +272,37 @@ export type UpdateUserInput = {
 export type User = {
   __typename?: 'User';
   birth_year: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   experience: Scalars['Int']['output'];
   id: Scalars['String']['output'];
   phone: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
   username: Scalars['String']['output'];
+  wallet: Wallet;
+  wallet_id: Scalars['String']['output'];
 };
 
 export type UserInfo = {
   __typename?: 'UserInfo';
   annual_income: AnnualIncome;
+  createdAt: Scalars['DateTime']['output'];
+  deletedAt: Scalars['DateTime']['output'];
   estimated_liabilities: EstimatedLiabilities;
   estimated_monthly_expenses: EstimatedMonthlyExpenses;
   expected_annual_return: ExpectedAnnualReturn;
   invested_before: Scalars['Boolean']['output'];
   investment_horizon: InvestmentHorizon;
   risk_tolerance: RiskTolerance;
+  updatedAt: Scalars['DateTime']['output'];
   userId: Scalars['String']['output'];
+};
+
+export type Wallet = {
+  __typename?: 'Wallet';
+  createdAt: Scalars['DateTime']['output'];
+  created_at: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  transactions: Array<Transaction>;
+  updatedAt: Scalars['DateTime']['output'];
 };
