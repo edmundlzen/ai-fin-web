@@ -1,4 +1,4 @@
-import { Box, Emoji } from "~/components";
+import { AddFinancialGoalModal, Box, Emoji } from "~/components";
 import { Icon } from "@iconify-icon/react";
 import { useEffect, useState } from "react";
 import Chart from "~/components/Chart";
@@ -61,8 +61,14 @@ const TEST_SAVINGS_DATA = [
 ] as SavingsData[];
 
 export default function Dashboard() {
+  const [goalModalOpen, setGoalModalOpen] = useState(false);
+
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
+      <AddFinancialGoalModal
+        isOpen={goalModalOpen}
+        onClose={() => setGoalModalOpen(false)}
+      />
       <div className="w-full">
         <h1 className="font-serif text-5xl">Dashboard</h1>
       </div>
@@ -77,7 +83,12 @@ export default function Dashboard() {
       <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
         <div className="flex w-full items-center justify-between">
           <h2 className="text-2xl font-bold tracking-tight">Financial Goals</h2>
-          <button className="flex w-fit items-center rounded-lg p-1 pr-2 text-sm font-bold transition-all hover:bg-slate-100 active:scale-95">
+          <button
+            className="flex w-fit items-center rounded-lg p-1 pr-2 text-sm font-bold transition-all hover:bg-slate-100 active:scale-95"
+            onClick={() => {
+              setGoalModalOpen(true);
+            }}
+          >
             <Icon icon="bi:plus" className="text-2xl" />
             Add a new goal
           </button>

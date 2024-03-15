@@ -12,6 +12,7 @@ export default function Emoji({
       src={emojis[name as keyof typeof emojis] || emojis["white-question-mark"]}
       alt={name}
       className={className}
+      loading="lazy"
     />
   );
 }
