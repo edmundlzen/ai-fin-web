@@ -13,6 +13,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
+    "\n  mutation CreateFinancialGoal(\n    $createFinancialGoalInput: CreateFinancialGoalInput!\n  ) {\n    createFinancialGoal(createFinancialGoalInput: $createFinancialGoalInput) {\n      id\n      name\n      emoji\n      amount\n      months_to_reach_goal\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateFinancialGoalDocument,
     "\n  mutation SigninUser($signinUserInput: SigninUserInput!) {\n    signinUser(signinUserInput: $signinUserInput) {\n      access_token\n    }\n  }\n": types.SigninUserDocument,
 };
 
@@ -30,6 +31,10 @@ const documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateFinancialGoal(\n    $createFinancialGoalInput: CreateFinancialGoalInput!\n  ) {\n    createFinancialGoal(createFinancialGoalInput: $createFinancialGoalInput) {\n      id\n      name\n      emoji\n      amount\n      months_to_reach_goal\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateFinancialGoal(\n    $createFinancialGoalInput: CreateFinancialGoalInput!\n  ) {\n    createFinancialGoal(createFinancialGoalInput: $createFinancialGoalInput) {\n      id\n      name\n      emoji\n      amount\n      months_to_reach_goal\n      createdAt\n      updatedAt\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -32,8 +32,8 @@ export type CreateFinancialGoalInput = {
   amount: Scalars['Int']['input'];
   /** Emoji of the financial goal */
   emoji: Scalars['String']['input'];
-  /** Target monthly contribution of the financial goal */
-  monthly_contribution_goal: Scalars['Int']['input'];
+  /** Targeted months to reach the financial goal */
+  months_to_reach_goal: Scalars['Int']['input'];
   /** Name of the financial goal */
   name: Scalars['String']['input'];
 };
@@ -93,12 +93,11 @@ export type FinancialGoal = {
   amount: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
   created_at: Scalars['DateTime']['output'];
-  deletedAt: Scalars['DateTime']['output'];
   emoji: Scalars['String']['output'];
   id: Scalars['String']['output'];
-  monthly_contribution_goal: Scalars['Int']['output'];
+  months_to_reach_goal: Scalars['Int']['output'];
   name: Scalars['String']['output'];
-  transaction: Array<Transaction>;
+  transaction?: Maybe<Array<Transaction>>;
   updatedAt: Scalars['DateTime']['output'];
   userId: Scalars['String']['output'];
 };
@@ -255,8 +254,8 @@ export type UpdateFinancialGoalInput = {
   /** Emoji of the financial goal */
   emoji?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
-  /** Target monthly contribution of the financial goal */
-  monthly_contribution_goal?: InputMaybe<Scalars['Int']['input']>;
+  /** Targeted months to reach the financial goal */
+  months_to_reach_goal?: InputMaybe<Scalars['Int']['input']>;
   /** Name of the financial goal */
   name?: InputMaybe<Scalars['String']['input']>;
 };
@@ -300,7 +299,6 @@ export type UserInfo = {
   __typename?: 'UserInfo';
   annual_income: AnnualIncome;
   createdAt: Scalars['DateTime']['output'];
-  deletedAt: Scalars['DateTime']['output'];
   estimated_liabilities: EstimatedLiabilities;
   estimated_monthly_expenses: EstimatedMonthlyExpenses;
   expected_annual_return: ExpectedAnnualReturn;
@@ -320,6 +318,13 @@ export type Wallet = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type CreateFinancialGoalMutationVariables = Exact<{
+  createFinancialGoalInput: CreateFinancialGoalInput;
+}>;
+
+
+export type CreateFinancialGoalMutation = { __typename?: 'Mutation', createFinancialGoal: { __typename?: 'FinancialGoal', id: string, name: string, emoji: string, amount: number, months_to_reach_goal: number, createdAt: any, updatedAt: any } };
+
 export type SigninUserMutationVariables = Exact<{
   signinUserInput: SigninUserInput;
 }>;
@@ -328,4 +333,5 @@ export type SigninUserMutationVariables = Exact<{
 export type SigninUserMutation = { __typename?: 'Mutation', signinUser: { __typename?: 'Jwt', access_token: string } };
 
 
+export const CreateFinancialGoalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateFinancialGoal"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"createFinancialGoalInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateFinancialGoalInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createFinancialGoal"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"createFinancialGoalInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"createFinancialGoalInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"months_to_reach_goal"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateFinancialGoalMutation, CreateFinancialGoalMutationVariables>;
 export const SigninUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SigninUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"signinUserInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SigninUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signinUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"signinUserInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"signinUserInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"access_token"}}]}}]}}]} as unknown as DocumentNode<SigninUserMutation, SigninUserMutationVariables>;

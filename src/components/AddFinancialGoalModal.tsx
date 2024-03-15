@@ -5,6 +5,9 @@ import * as Yup from "yup";
 import { useState } from "react";
 import emojis from "~/emojis.json";
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs";
+import { graphql } from "~/gql";
+import { useMutation } from "@apollo/client";
+import { toast } from "react-toastify";
 
 const AddFinancialGoalSchema = Yup.object().shape({
   emoji: Yup.string().required("Required"),
@@ -14,6 +17,22 @@ const AddFinancialGoalSchema = Yup.object().shape({
 });
 
 const MAX_EMOJIS_PER_PAGE = 20;
+
+const CREATE_FINANCIAL_GOAL = graphql(`
+  mutation CreateFinancialGoal(
+    $createFinancialGoalInput: CreateFinancialGoalInput!
+  ) {
+    createFinancialGoal(createFinancialGoalInput: $createFinancialGoalInput) {
+      id
+      name
+      emoji
+      amount
+      months_to_reach_goal
+      createdAt
+      updatedAt
+    }
+  }
+`);
 
 const AddFinancialGoalModal = ({
   isOpen,
@@ -25,6 +44,9 @@ const AddFinancialGoalModal = ({
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [emojiSearchQuery, setEmojiSearchQuery] = useState("");
   const [emojiPage, setEmojiPage] = useState(0);
+  const [mutateFunction, { data, loading, error }] = useMutation(
+    CREATE_FINANCIAL_GOAL,
+  );
 
   return (
     <Modal
@@ -40,14 +62,30 @@ const AddFinancialGoalModal = ({
       <div className="mt-3">
         <Formik
           initialValues={{
-            emoji: "white-question-mark",
+            emoji: "question-mark",
             name: "",
             totalAmount: 0,
             monthsToReachGoal: 0,
           }}
           validationSchema={AddFinancialGoalSchema}
-          onSubmit={(values) => {
+          onSubmit={async (values) => {
             console.log(values);
+            try {
+              await mutateFunction({
+                variables: {
+                  createFinancialGoalInput: {
+                    emoji: values.emoji,
+                    name: values.name,
+                    amount: +values.totalAmount,
+                    months_to_reach_goal: +values.monthsToReachGoal,
+                  },
+                },
+              });
+              toast.success("Financial goal added successfully");
+              onClose();
+            } catch (error) {
+              toast.error("An error occurred");
+            }
           }}
           validateOnMount
           validateOnBlur
@@ -168,6 +206,24 @@ const AddFinancialGoalModal = ({
                   name="totalAmount"
                   id="totalAmount"
                   className="mt-1 w-full rounded-lg border border-slate-200 p-3"
+                  inputMode="numeric"
+                  onKeyDown={(e) => {
+                    // Only allow numbers
+                    if (
+                      !(
+                        (e.key >= "0" && e.key <= "9") ||
+                        e.key === "Backspace" ||
+                        e.key === "Delete" ||
+                        e.key === "ArrowLeft" ||
+                        e.key === "ArrowRight" ||
+                        e.key === "ArrowUp" ||
+                        e.key === "ArrowDown" ||
+                        e.key === "Tab"
+                      )
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
                   onChange={(e) => {
                     void setFieldValue("totalAmount", e.target.value);
                   }}
@@ -224,13 +280,15 @@ const AddFinancialGoalModal = ({
                 <button
                   type="button"
                   onClick={() => onClose()}
-                  className="w-24 rounded-lg p-3 text-sm font-bold text-primary transition-all hover:bg-slate-100 active:scale-95"
+                  className="btn btn-ghost w-24"
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="ml-4 w-24 rounded-lg border border-secondary bg-tertiary p-3 text-sm font-bold text-primary transition-all hover:bg-secondary active:scale-95"
+                  disabled={isSubmitting}
                 >
                   Add
                 </button>

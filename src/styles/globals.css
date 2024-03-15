@@ -32,6 +32,9 @@ svg {
 }
 
 [data-theme="customtheme"] .btn-primary {
-  color: hsla(236, 61%, 32%, 1);
   border-color: hsla(223, 100%, 79%, 1);
+}
+
+[data-theme="customtheme"] .btn-ghost, [data-theme="customtheme"] .btn-primary {
+  color: hsla(236, 61%, 32%, 1);
 }
