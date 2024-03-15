@@ -30,3 +30,8 @@ svg {
 .loader.grey {
   stroke: #c1c1c1;
 }
+
+[data-theme="customtheme"] .btn {
+  color: hsla(236, 61%, 32%, 1);
+  border-color: hsla(223, 100%, 79%, 1);
+}

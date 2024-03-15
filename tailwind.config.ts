@@ -23,5 +23,30 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-hero-patterns")],
+  daisyui: {
+    themes: [
+      {
+        customtheme: {
+          primary: "#bae6fd",
+
+          secondary: "#00e600",
+
+          accent: "#d20000",
+
+          neutral: "#362130",
+
+          "base-100": "#f9fafc",
+
+          info: "#00c2ff",
+
+          success: "#00a548",
+
+          warning: "#d47b00",
+
+          error: "#d30039",
+        },
+      },
+    ],
+  },
+  plugins: [require("tailwindcss-hero-patterns"), require("daisyui")],
 } satisfies Config;

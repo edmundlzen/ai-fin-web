@@ -1,13 +1,25 @@
+import { useMutation } from "@apollo/client";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Box } from "~/components";
+import { graphql } from "~/gql";
 
-const SignUpSchema = Yup.object().shape({
+const SignInSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
   password: Yup.string().required("Required"),
 });
 
+const SIGN_IN = graphql(`
+  mutation SigninUser($signinUserInput: SigninUserInput!) {
+    signinUser(signinUserInput: $signinUserInput) {
+      access_token
+    }
+  }
+`);
+
 export default function Login() {
+  const [mutateFunction, { data, loading, error }] = useMutation(SIGN_IN);
   return (
     <main className="flex h-screen items-center justify-center overflow-y-scroll bg-[length:100px_100px] heropattern-wiggle-slate-50">
       <Box className="min-h-4/5 h-fit w-5/6">
@@ -19,9 +31,31 @@ export default function Login() {
             email: "",
             password: "",
           }}
-          validationSchema={SignUpSchema}
-          onSubmit={(values, { setSubmitting }) => {
-            console.log(values);
+          validationSchema={SignInSchema}
+          onSubmit={async (values) => {
+            try {
+              const { data } = await mutateFunction({
+                variables: {
+                  signinUserInput: {
+                    email: values.email,
+                    password: values.password,
+                  },
+                },
+              });
+              console.log(data?.signinUser?.access_token);
+              if (data?.signinUser?.access_token) {
+                window.localStorage.setItem(
+                  "access_token",
+                  data?.signinUser?.access_token,
+                );
+              }
+              toast.success("Logged in successfully, redirecting...");
+              setTimeout(() => {
+                window.location.href = "/dashboard";
+              }, 1000);
+            } catch (error) {
+              toast.error("Invalid email or password");
+            }
           }}
         >
           {({ isSubmitting }) => (
@@ -46,8 +80,10 @@ export default function Login() {
               </div>
               <button
                 type="submit"
-                className="!mt-12 rounded-md border border-secondary bg-tertiary p-3 text-sm font-bold text-primary"
+                className="btn btn-primary !mt-12"
+                disabled={isSubmitting}
               >
+                {isSubmitting && <span className="loading loading-spinner" />}
                 Login
               </button>
             </Form>

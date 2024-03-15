@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -109,6 +110,11 @@ export enum InvestmentHorizon {
   MoreThan5Years = 'MoreThan5Years'
 }
 
+export type Jwt = {
+  __typename?: 'Jwt';
+  access_token: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createFinancialGoal: FinancialGoal;
@@ -116,7 +122,7 @@ export type Mutation = {
   createTransaction: Transaction;
   removeFinancialGoal: FinancialGoal;
   removeTransaction: Transaction;
-  removeUser: User;
+  signinUser: Jwt;
   signupUser: User;
   updateFinancialGoal: FinancialGoal;
   updateTransaction: Transaction;
@@ -149,8 +155,8 @@ export type MutationRemoveTransactionArgs = {
 };
 
 
-export type MutationRemoveUserArgs = {
-  id: Scalars['String']['input'];
+export type MutationSigninUserArgs = {
+  signinUserInput: SigninUserInput;
 };
 
 
@@ -212,6 +218,13 @@ export enum RiskTolerance {
   Low = 'Low',
   Medium = 'Medium'
 }
+
+export type SigninUserInput = {
+  /** Email of the user */
+  email: Scalars['String']['input'];
+  /** Unhashed password of the user */
+  password: Scalars['String']['input'];
+};
 
 export type SignupUserInput = {
   /** Birth year of the user */
@@ -306,3 +319,13 @@ export type Wallet = {
   transactions: Array<Transaction>;
   updatedAt: Scalars['DateTime']['output'];
 };
+
+export type SigninUserMutationVariables = Exact<{
+  signinUserInput: SigninUserInput;
+}>;
+
+
+export type SigninUserMutation = { __typename?: 'Mutation', signinUser: { __typename?: 'Jwt', access_token: string } };
+
+
+export const SigninUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SigninUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"signinUserInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SigninUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signinUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"signinUserInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"signinUserInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"access_token"}}]}}]}}]} as unknown as DocumentNode<SigninUserMutation, SigninUserMutationVariables>;
