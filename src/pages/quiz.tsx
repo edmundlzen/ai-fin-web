@@ -1,7 +1,10 @@
+import { useMutation } from "@apollo/client";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
+import { graphql } from "~/gql";
 import {
   AnnualIncome,
   EstimatedLiabilities,
@@ -10,6 +13,7 @@ import {
   InvestmentHorizon,
   RiskTolerance,
 } from "~/gql/graphql";
+import useAuth from "~/hooks/useAuth";
 
 const SignUpSchema = Yup.object().shape({
   annualIncome: Yup.string().required("Required"),
@@ -21,9 +25,25 @@ const SignUpSchema = Yup.object().shape({
   investmentHorizon: Yup.string().required("Required"),
 });
 
+const SUBMIT_QUIZ = graphql(`
+  mutation CreateOrUpdateUserInfo(
+    $createOrUpdateUserInfoInput: CreateOrUpdateUserInfoInput!
+  ) {
+    createOrUpdateUserInfo(
+      createOrUpdateUserInfoInput: $createOrUpdateUserInfoInput
+    ) {
+      userId
+      updatedAt
+    }
+  }
+`);
+
 export default function Quiz() {
   const [activeSection, setActiveSection] = useState(0);
   const [reverse, setReverse] = useState(false);
+  const [mutateFunction, { data, loading, error }] = useMutation(SUBMIT_QUIZ);
+  const { userId } = useAuth();
+
   return (
     <main className="flex h-screen items-center justify-center overflow-y-scroll bg-[length:100px_100px] heropattern-wiggle-slate-50">
       <Formik
@@ -37,8 +57,35 @@ export default function Quiz() {
           investmentHorizon: "",
         }}
         validationSchema={SignUpSchema}
-        onSubmit={(values) => {
-          console.log(values);
+        onSubmit={async (values) => {
+          try {
+            await mutateFunction({
+              variables: {
+                createOrUpdateUserInfoInput: {
+                  annual_income: values.annualIncome as AnnualIncome,
+                  estimated_liabilities:
+                    values.estimatedLiabilities as EstimatedLiabilities,
+                  estimated_monthly_expenses:
+                    values.estimatedMonthlyExpenses as EstimatedMonthlyExpenses,
+                  invested_before: values.investedBefore === "true",
+                  risk_tolerance: values.riskTolerance as RiskTolerance,
+                  expected_annual_return:
+                    values.expectedAnnualReturn as ExpectedAnnualReturn,
+                  investment_horizon:
+                    values.investmentHorizon as InvestmentHorizon,
+                  user_id: userId ?? "",
+                },
+              },
+            });
+            toast.success("Quiz submitted successfully, redirecting...");
+            setTimeout(() => {
+              window.location.href = "/dashboard";
+            }, 1000);
+          } catch (e) {
+            toast.error(
+              (e as { message: string }).message || "An error occurred",
+            );
+          }
         }}
         validateOnMount
         validateOnBlur
