@@ -15,6 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
     "\n  mutation CreateFinancialGoal(\n    $createFinancialGoalInput: CreateFinancialGoalInput!\n  ) {\n    createFinancialGoal(createFinancialGoalInput: $createFinancialGoalInput) {\n      id\n      name\n      emoji\n      amount\n      months_to_reach_goal\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateFinancialGoalDocument,
     "\n  mutation SigninUser($signinUserInput: SigninUserInput!) {\n    signinUser(signinUserInput: $signinUserInput) {\n      access_token\n    }\n  }\n": types.SigninUserDocument,
+    "\n  mutation SignupUser($signupUserInput: SignupUserInput!) {\n    signupUser(signupUserInput: $signupUserInput) {\n      access_token\n    }\n  }\n": types.SignupUserDocument,
 };
 
 /**
@@ -39,6 +40,10 @@ export function graphql(source: "\n  mutation CreateFinancialGoal(\n    $createF
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation SigninUser($signinUserInput: SigninUserInput!) {\n    signinUser(signinUserInput: $signinUserInput) {\n      access_token\n    }\n  }\n"): (typeof documents)["\n  mutation SigninUser($signinUserInput: SigninUserInput!) {\n    signinUser(signinUserInput: $signinUserInput) {\n      access_token\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation SignupUser($signupUserInput: SignupUserInput!) {\n    signupUser(signupUserInput: $signupUserInput) {\n      access_token\n    }\n  }\n"): (typeof documents)["\n  mutation SignupUser($signupUserInput: SignupUserInput!) {\n    signupUser(signupUserInput: $signupUserInput) {\n      access_token\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

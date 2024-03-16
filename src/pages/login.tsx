@@ -42,7 +42,6 @@ export default function Login() {
                   },
                 },
               });
-              console.log(data?.signinUser?.access_token);
               if (data?.signinUser?.access_token) {
                 window.localStorage.setItem(
                   "access_token",

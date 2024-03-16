@@ -1,15 +1,18 @@
+import { useMutation } from "@apollo/client";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { ChangeEvent, useEffect } from "react";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Box } from "~/components";
+import { graphql } from "~/gql";
 
 const SignUpSchema = Yup.object().shape({
   username: Yup.string()
     .min(2, "Your username is too short")
     .required("Required"),
   phone: Yup.string().matches(
-    /^01[0-9]-[0-9]+$/,
-    "Phone number must be in the format 01X-XXXXXXX",
+    /^01[0-9]{8,9}$/,
+    "Phone number must be in the format 01XXXXXXXX",
   ),
   email: Yup.string().email("Invalid email").required("Required"),
   birthYear: Yup.number()
@@ -24,7 +27,18 @@ const SignUpSchema = Yup.object().shape({
     .required("Required"),
 });
 
+const SIGN_UP = graphql(`
+  mutation SignupUser($signupUserInput: SignupUserInput!) {
+    signupUser(signupUserInput: $signupUserInput) {
+      access_token
+    }
+  }
+`);
+
 export default function SignUp() {
+  const [mutateFunction, { data, loading, error }] = useMutation<{
+    signupUser: { access_token: string };
+  }>(SIGN_UP);
   return (
     <main className="flex h-screen items-center justify-center overflow-y-scroll bg-[length:100px_100px] heropattern-wiggle-slate-50">
       <Box className="min-h-4/5 h-fit w-5/6">
@@ -41,8 +55,34 @@ export default function SignUp() {
             confirmPassword: "",
           }}
           validationSchema={SignUpSchema}
-          onSubmit={(values, { setSubmitting }) => {
-            console.log(values);
+          onSubmit={async (values, { setSubmitting }) => {
+            try {
+              const { data } = await mutateFunction({
+                variables: {
+                  signupUserInput: {
+                    username: values.username,
+                    phone: values.phone,
+                    email: values.email,
+                    birth_year: parseInt(values.birthYear),
+                    password: values.password,
+                  },
+                },
+              });
+              if (data?.signupUser?.access_token) {
+                window.localStorage.setItem(
+                  "access_token",
+                  data?.signupUser?.access_token,
+                );
+              }
+              toast.success("Signed up successfully, redirecting...");
+              setTimeout(() => {
+                window.location.href = "/dashboard";
+              }, 1000);
+            } catch (e) {
+              toast.error(
+                (e as { message: string }).message || "An error occurred",
+              );
+            }
           }}
         >
           {({ isSubmitting }) => (
@@ -142,6 +182,23 @@ function CustomInput({
         inputMode={
           type === "number" ? "numeric" : type === "tel" ? "tel" : "text"
         }
+        onKeyDown={(e) => {
+          if (type !== "number" && type !== "tel") return;
+          if (
+            !(
+              (e.key >= "0" && e.key <= "9") ||
+              e.key === "Backspace" ||
+              e.key === "Delete" ||
+              e.key === "ArrowLeft" ||
+              e.key === "ArrowRight" ||
+              e.key === "ArrowUp" ||
+              e.key === "ArrowDown" ||
+              e.key === "Tab"
+            )
+          ) {
+            e.preventDefault();
+          }
+        }}
         onInput={
           type === "number"
             ? (e) => {
