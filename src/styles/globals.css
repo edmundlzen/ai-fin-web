@@ -20,21 +20,27 @@ svg {
 }
 
 .loader {
-  stroke: #3e48d0;
+  /* stroke: #3e48d0; */
   stroke-width: 18;
   transform-origin: center;
   fill: transparent;
   stroke-linecap: round;
   transition: all 0.5s ease;
 }
+
 .loader.grey {
   stroke: #c1c1c1;
+}
+
+.loader.moderate {
+  stroke: #f5a623;
 }
 
 [data-theme="customtheme"] .btn-primary {
   border-color: hsla(223, 100%, 79%, 1);
 }
 
-[data-theme="customtheme"] .btn-ghost, [data-theme="customtheme"] .btn-primary {
+[data-theme="customtheme"] .btn-ghost,
+[data-theme="customtheme"] .btn-primary {
   color: hsla(236, 61%, 32%, 1);
 }
