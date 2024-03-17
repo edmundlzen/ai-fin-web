@@ -19,7 +19,7 @@ export default function AiStrategy() {
       <div className="w-full">
         <h1 className="font-serif text-5xl">AI Strategy</h1>
       </div>
-      <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center gap-y-4 p-3">
+      <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center p-3">
         <h2 className="text-xl font-semibold tracking-tight">
           Based on your financial status
         </h2>
@@ -65,6 +65,39 @@ export default function AiStrategy() {
               }}
             />
           </svg>
+          <div className="text-md absolute -top-2 left-0 flex h-full w-full flex-col items-center justify-center px-16 text-center">
+            We recommend a
+            <span className="text-2xl font-semibold">
+              Moderate Risk Strategy
+            </span>
+          </div>
+        </div>
+        <div>
+          <div className="text-xl font-semibold">Hi Jim!</div>
+          <div className="text-sm font-medium">
+            Based on your monthly income of{" "}
+            <span
+              className="underline underline-offset-0"
+              style={{
+                textDecorationThickness: "0.3em",
+                textDecorationColor: "rgba(148, 178, 255, 0.6)",
+                textDecorationSkipInk: "none",
+              }}
+            >
+              RM5,000
+            </span>
+            , we recommend investing 10% of it to unit trust funds with the
+            following criteria:
+          </div>
+          <div className="mt-5 text-lg font-semibold leading-6">
+            Expenses ratio: &lt; 0.5%
+            <br />
+            Standard deviation: &lt; 1.0
+          </div>
+          <div className="mt-5 text-sm font-medium">
+            We have suggested a few unit trust funds for you based on these
+            criteria.
+          </div>
         </div>
       </Box>
     </main>
