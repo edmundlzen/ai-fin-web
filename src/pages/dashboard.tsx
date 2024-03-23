@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import Chart from "~/components/Chart";
 import FinancialGoalCard from "~/components/FinancialGoalCard";
 import useAuth from "~/hooks/useAuth";
+import { graphql } from "~/gql";
+import { useMutation, useQuery } from "@apollo/client";
+import { User } from "~/gql/graphql";
 
 type SavingsData = {
   month: string;
@@ -61,9 +64,60 @@ const TEST_SAVINGS_DATA = [
   },
 ] as SavingsData[];
 
+const GET_USER_DATA = graphql(`
+  query User($userId: String!) {
+    user(id: $userId) {
+      id
+      email
+      username
+      phone
+      birth_year
+      experience
+      createdAt
+      updatedAt
+      wallet {
+        id
+        createdAt
+        updatedAt
+        transactions {
+          id
+          amount
+          wallet_id
+          financial_goal {
+            name
+          }
+        }
+      }
+      wallet_id
+      financial_goal {
+        id
+        userId
+        emoji
+        name
+        amount
+        months_to_reach_goal
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`);
+
 export default function Dashboard() {
   const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
+  const { data, loading, error } = useQuery<{ user: User }, { userId: string }>(
+    GET_USER_DATA,
+    {
+      variables: {
+        userId: userId ?? "",
+      },
+    },
+  );
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
 
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
@@ -96,36 +150,20 @@ export default function Dashboard() {
           </button>
         </div>
         <div className="mt-2 flex w-full flex-col items-start justify-center gap-y-4">
-          <FinancialGoalCard
-            title="Dream House Fund"
-            emoji="house"
-            estimatedDate="5 months"
-            percentageGrowthFromLastMonth={8}
-            currentMonthSavings={2000}
-            currentMonthGoal={5000}
-            targetAmount={100000}
-            oldSavedAmount={50000}
-          />
-          <FinancialGoalCard
-            title="New PC"
-            emoji="laptop"
-            estimatedDate="3 months"
-            percentageGrowthFromLastMonth={20}
-            currentMonthSavings={1000}
-            currentMonthGoal={800}
-            targetAmount={8000}
-            oldSavedAmount={2000}
-          />
-          <FinancialGoalCard
-            title="University fund"
-            emoji="graduation-cap"
-            estimatedDate="1 year 2 months"
-            percentageGrowthFromLastMonth={1}
-            currentMonthSavings={500}
-            currentMonthGoal={500}
-            targetAmount={100000}
-            oldSavedAmount={100000 - 500}
-          />
+          {data?.user.financial_goal && data.user.financial_goal.length > 0 ? (
+            data.user.financial_goal.map((goal) => (
+              <FinancialGoalCard
+                key={goal.id}
+                financialGoal={goal}
+                wallet={data.user.wallet}
+              />
+            ))
+          ) : (
+            <div className="flex w-full items-center justify-center gap-x-2">
+              <Emoji name="direct-hit" />
+              <p className="text-pretty">No financial goals set yet</p>
+            </div>
+          )}
         </div>
       </Box>
       <Box className="flex h-fit w-full flex-col items-center p-3">

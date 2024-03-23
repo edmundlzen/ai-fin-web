@@ -17,6 +17,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     const decodedToken = token ? jwtDecode(token) : {};
     const { sub, exp } = decodedToken;
 
+    console.log(sub, exp);
     if (!token || (exp ?? 0) > Date.now()) {
       localStorage.removeItem("access_token");
 
