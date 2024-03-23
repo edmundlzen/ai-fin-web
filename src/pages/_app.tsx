@@ -16,7 +16,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     // Logic to decode the JWT token and extract the user ID
     const decodedToken = token ? jwtDecode(token) : {};
     const { sub, exp } = decodedToken;
-
+    console.log(sub, exp);
     if (!token || (exp ?? 0) > Date.now() / 1000) {
       localStorage.removeItem("access_token");
 

@@ -8,7 +8,9 @@ import { graphql } from "~/gql";
 
 const SignInSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
-  password: Yup.string().required("Required"),
+  password: Yup.string()
+    .min(8, "Password must be at least 8 characters")
+    .required("Required"),
 });
 
 const SIGN_IN = graphql(`
@@ -54,7 +56,14 @@ export default function Login() {
                 window.location.href = "/dashboard";
               }, 1000);
             } catch (error) {
-              toast.error("Invalid email or password");
+              const errorMessage = (error as { message: string }).message ?? "";
+              if (errorMessage.includes("Invalid password")) {
+                toast.error("Invalid password");
+              } else if (errorMessage.includes("User not found")) {
+                toast.error("User not found");
+              } else {
+                toast.error("An error occurred, please try again later");
+              }
             }
           }}
         >
