@@ -12,7 +12,7 @@ export default {
       colors: {
         primary: "hsla(236, 61%, 32%, 1)",
         secondary: "hsla(223, 100%, 79%, 1)",
-        tertiary: "hsla(223, 100%, 93%, 1)",
+        tertiary: "rgba(219, 229, 255, 0.3)",
         background: "#f9fafc",
         "secondary-text": "#2D354E",
         "tertiary-text": "#6E6E6E",

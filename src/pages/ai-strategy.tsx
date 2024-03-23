@@ -23,7 +23,7 @@ export default function AiStrategy() {
         <h2 className="text-xl font-semibold tracking-tight">
           Based on your financial status
         </h2>
-        <div className="relative">
+        <div className="relative ml-auto mr-auto">
           <svg
             className="loader-svg"
             width="280"
@@ -98,6 +98,69 @@ export default function AiStrategy() {
             We have suggested a few unit trust funds for you based on these
             criteria.
           </div>
+        </div>
+      </Box>
+      <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center p-3">
+        <h2 className="text-xl font-semibold tracking-tight">
+          Recommended Unit Trust Funds
+        </h2>
+        <h3 className="-mt-1 text-sm font-medium text-secondary-text">
+          based on your financial status
+        </h3>
+        <div className="mt-4 w-full">
+          <Box className="flex w-full flex-col items-start justify-center p-1">
+            <div className="flex items-center justify-center">
+              <img
+                className="w-16"
+                src="https://upload.wikimedia.org/wikipedia/ms/9/9d/Public.gif"
+              />
+              <div className="ml-3 flex-1 text-lg font-semibold leading-snug">
+                Public Advantage Growth Equity Fund
+              </div>
+            </div>
+            <div className="mt-2 grid w-full grid-cols-[20%_80%] gap-x-3 gap-y-2">
+              <Icon
+                icon="streamline:calculator-2"
+                className="flex items-center justify-center stroke-[0.7] text-4xl text-primary"
+              />
+              <div className="flex flex-col items-start justify-center">
+                <div className="text-xs uppercase text-secondary-text">
+                  Expenses Ratio
+                </div>
+                <div className="text-3xl font-medium">0.4%</div>
+              </div>
+              <Icon
+                icon="streamline:graph"
+                className="flex items-center justify-center stroke-[0.7] text-4xl text-primary"
+              />
+              <div className="flex flex-col items-start justify-center">
+                <div className="text-xs uppercase text-secondary-text">
+                  Standard Deviation
+                </div>
+                <div className="text-3xl font-medium">0.85</div>
+              </div>
+              <Icon
+                icon="icon-park-outline:caution"
+                className="flex items-center justify-center stroke-[0.7] text-4xl text-primary"
+              />
+              <div className="flex flex-col items-start justify-center">
+                <div className="text-xs uppercase text-secondary-text">
+                  Risk Level
+                </div>
+                <div className="text-3xl font-medium">Moderate</div>
+              </div>
+            </div>
+            <div className="mt-8 flex w-full flex-col gap-y-4">
+              <button className="flex items-center justify-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary transition-all hover:scale-95 active:scale-90">
+                PHS
+                <Icon icon="ph:link-bold" className="ml-1 text-primary" />
+              </button>
+              <button className="flex items-center justify-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary transition-all hover:scale-95 active:scale-90">
+                Prospectus
+                <Icon icon="ph:link-bold" className="ml-1 text-primary" />
+              </button>
+            </div>
+          </Box>
         </div>
       </Box>
     </main>
