@@ -1,5 +1,6 @@
 import { useMutation } from "@apollo/client";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import Link from "next/link";
 import { ChangeEvent, useEffect } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
@@ -140,6 +141,12 @@ export default function SignUp() {
                   component={CustomInput}
                 />
                 <CustomError name="confirmPassword" />
+              </div>
+              <div>
+                Already have an account?{" "}
+                <Link href="/login" className="text-blue-500">
+                  Login
+                </Link>
               </div>
               <button
                 type="submit"
