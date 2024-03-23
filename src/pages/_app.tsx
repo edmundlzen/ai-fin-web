@@ -1,14 +1,35 @@
 import { type AppType } from "next/dist/shared/lib/utils";
 import Head from "next/head";
-
 import "~/styles/globals.css";
 import "react-responsive-modal/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ApolloProvider } from "@apollo/client";
 import { ToastContainer } from "react-toastify";
 import client from "~/apolloClient";
+import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
+  useEffect(() => {
+    // Logic to retrieve the JWT token from local storage or any other source
+    const token = localStorage.getItem("access_token");
+    // Logic to decode the JWT token and extract the user ID
+    const decodedToken = token ? jwtDecode(token) : {};
+    const { sub, exp } = decodedToken;
+
+    if (!token || (exp ?? 0) > Date.now() / 1000) {
+      localStorage.removeItem("access_token");
+
+      // Redirect the user to the login page
+      if (
+        window.location.pathname !== "/login" &&
+        window.location.pathname !== "/signup"
+      ) {
+        window.location.href = "/login";
+      }
+    }
+  }, []);
+
   return (
     <>
       <Head>
