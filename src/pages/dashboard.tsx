@@ -3,6 +3,7 @@ import { Icon } from "@iconify-icon/react";
 import { useEffect, useState } from "react";
 import Chart from "~/components/Chart";
 import FinancialGoalCard from "~/components/FinancialGoalCard";
+import useAuth from "~/hooks/useAuth";
 
 type SavingsData = {
   month: string;
@@ -61,6 +62,7 @@ const TEST_SAVINGS_DATA = [
 ] as SavingsData[];
 
 export default function Dashboard() {
+  const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
 
   return (

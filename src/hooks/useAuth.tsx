@@ -7,7 +7,6 @@ const useAuth = (): { userId: string | null } => {
   useEffect(() => {
     // Logic to retrieve the JWT token from local storage or any other source
     const token = localStorage.getItem("access_token");
-
     if (token) {
       // Logic to decode the JWT token and extract the user ID
       const decodedToken = jwtDecode(token);
