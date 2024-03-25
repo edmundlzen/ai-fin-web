@@ -7,6 +7,7 @@ import useAuth from "~/hooks/useAuth";
 import { graphql } from "~/gql";
 import { useMutation, useQuery } from "@apollo/client";
 import { User } from "~/gql/graphql";
+import dayjs from "dayjs";
 
 type SavingsData = {
   month: string;
@@ -119,6 +120,10 @@ export default function Dashboard() {
     console.log(data);
   }, [data]);
 
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
       <AddFinancialGoalModal
@@ -171,15 +176,52 @@ export default function Dashboard() {
           Total saved this month
         </h2>
         <div className="flex w-full items-baseline">
-          <h3 className="mt-1 text-4xl font-bold">RM 2,405</h3>
+          <h3 className="mt-1 text-4xl font-bold">
+            RM{" "}
+            {data?.user.wallet.transactions
+              .filter(
+                (transaction) =>
+                  dayjs().diff(dayjs(transaction.createdAt as string), "day") <
+                  30,
+              )
+              .reduce((acc, curr) => acc + curr.amount, 0)
+              .toLocaleString("en-MY")}
+          </h3>
           <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
             <Icon icon="ant-design:rise-outlined" className="text-positive" />
-            25%
+            {data!.user.wallet.transactions
+              .filter(
+                (transaction) =>
+                  dayjs().diff(dayjs(transaction.createdAt as string), "day") <
+                  30,
+              )
+              .reduce((acc, curr) => acc + curr.amount, 0) /
+              data!.user.wallet.transactions
+                .filter(
+                  (transaction) =>
+                    dayjs().diff(
+                      dayjs(transaction.createdAt as string),
+                      "day",
+                    ) < 30,
+                )
+                .reduce((acc, curr) => acc + curr.amount, 0) || 0}{" "}
+            %
           </div>
           <div className="ml-2 text-xs text-tertiary-text">from last month</div>
         </div>
         <div className="mt-2">
-          <CircleProgressBar percentage={90} amount="RM 2,500" />
+          <CircleProgressBar
+            percentage={0}
+            amount={
+              data!.user.financial_goal
+                .filter(
+                  (goal) =>
+                    dayjs().diff(dayjs(goal.createdAt as string), "day") <
+                    goal.months_to_reach_goal * 30,
+                )
+                .reduce((acc, curr) => acc + curr.amount, 0) || 0
+            }
+          />
         </div>
         <div className="mt-4 flex items-center gap-x-4">
           <div className="flex items-center text-sm text-tertiary-text">
@@ -282,19 +324,29 @@ function CircleProgressBar({
   amount,
 }: {
   percentage: number;
-  amount: string;
+  amount: number;
 }) {
   const circleRadius = 50;
   const totalSpace = 0.2;
   const circleCircumference = 2 * Math.PI * circleRadius;
   const maxCircleCircumference = circleCircumference * 0.75;
   const [displayedPercentage, setDisplayedPercentage] = useState(0);
-  const delay = 0.5;
 
   useEffect(() => {
-    setTimeout(() => {
-      setDisplayedPercentage(percentage);
-    }, delay * 1000);
+    console.log(
+      (
+        (displayedPercentage * maxCircleCircumference) / 100 -
+        ((totalSpace / 2) *
+          maxCircleCircumference *
+          (100 - displayedPercentage)) /
+          100
+      )
+        .toFixed(2)
+        .toString() +
+        ", " +
+        circleCircumference.toFixed(2).toString(),
+    );
+    setDisplayedPercentage(Math.min(Math.max(percentage, 0), 100));
   }, [percentage]);
 
   return (
@@ -314,13 +366,17 @@ function CircleProgressBar({
               r={circleRadius}
               style={{
                 strokeDasharray:
-                  (displayedPercentage * maxCircleCircumference) / 100 -
-                  ((totalSpace / 2) *
-                    maxCircleCircumference *
-                    (100 - displayedPercentage)) /
-                    100 +
+                  (
+                    (displayedPercentage * maxCircleCircumference) / 100 -
+                    ((totalSpace / 2) *
+                      maxCircleCircumference *
+                      (100 - displayedPercentage)) /
+                      100
+                  )
+                    .toFixed(2)
+                    .toString() +
                   ", " +
-                  circleCircumference,
+                  circleCircumference.toFixed(2).toString(),
                 transform: "rotate(135deg)",
               }}
             />
@@ -371,13 +427,15 @@ function CircleProgressBar({
               r={circleRadius}
               style={{
                 strokeDasharray:
-                  (displayedPercentage * maxCircleCircumference) / 100 -
-                  ((totalSpace / 2) *
-                    maxCircleCircumference *
-                    (100 - displayedPercentage)) /
-                    100 +
+                  (
+                    (displayedPercentage * maxCircleCircumference) / 100 -
+                    ((totalSpace / 2) *
+                      maxCircleCircumference *
+                      (100 - displayedPercentage)) /
+                      100
+                  ).toFixed(2) +
                   ", " +
-                  circleCircumference,
+                  circleCircumference.toFixed(2),
                 transform: "rotate(135deg)",
               }}
             />
@@ -386,7 +444,7 @@ function CircleProgressBar({
       </svg>
       <div className="absolute -top-2 left-0 flex h-full w-full flex-col items-center justify-center text-lg font-bold">
         Monthly goal
-        <span className="text-3xl">{amount}</span>
+        <span className="text-3xl">RM {amount.toLocaleString("en-MY")}</span>
       </div>
     </div>
   );

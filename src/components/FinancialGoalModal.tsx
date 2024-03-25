@@ -1,0 +1,177 @@
+import { Formik, Form, ErrorMessage } from "formik";
+import Modal from "react-responsive-modal";
+import * as Yup from "yup";
+import { graphql } from "~/gql";
+import { useMutation } from "@apollo/client";
+import { toast } from "react-toastify";
+import { Transaction, type FinancialGoal } from "~/gql/graphql";
+
+const AddTransactionSchema = Yup.object().shape({
+  amount: Yup.number().required("Amount is required"),
+});
+
+const CREATE_TRANSACTION = graphql(`
+  mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {
+    createTransaction(createTransactionInput: $createTransactionInput) {
+      id
+      amount
+      wallet_id
+      financial_goal_id
+      createdAt
+      updatedAt
+    }
+  }
+`);
+
+const FinancialGoalModal = ({
+  isOpen,
+  onClose,
+  financialGoal,
+  walletId,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  financialGoal?: FinancialGoal | null;
+  walletId: string;
+}) => {
+  const [mutateFunction, { data, loading, error }] = useMutation<
+    { createTransaction: { id: string } },
+    {
+      createTransactionInput: {
+        amount: number;
+        financial_goal_id: string;
+        wallet_id: string;
+      };
+    }
+  >(CREATE_TRANSACTION);
+
+  if (!financialGoal) return null;
+  return (
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      center
+      showCloseIcon={false}
+      classNames={{
+        modal: "rounded-lg w-10/12",
+      }}
+    >
+      <h2 className="text-xl font-semibold">{financialGoal.name}</h2>
+      <div className="mt-3">
+        <Formik
+          initialValues={{
+            amount: 0,
+          }}
+          validationSchema={AddTransactionSchema}
+          onSubmit={async (values) => {
+            console.log(values);
+            try {
+              await mutateFunction({
+                variables: {
+                  createTransactionInput: {
+                    amount: +values.amount,
+                    financial_goal_id: financialGoal.id,
+                    wallet_id: walletId,
+                  },
+                },
+              });
+              toast.success("Transaction added successfully");
+              onClose();
+            } catch (error) {
+              toast.error("Failed to add transaction");
+            }
+          }}
+          validateOnMount
+          validateOnBlur
+          validateOnChange
+        >
+          {({ isSubmitting, setFieldValue, values }) => (
+            <Form className="flex flex-col gap-y-4">
+              <div className="flex flex-col items-start gap-x-4">
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => {
+                    console.log(financialGoal.transactions);
+                  }}
+                >
+                  Show Transactions
+                </button>
+                <label htmlFor="amount" className="w-full font-medium">
+                  Transaction History
+                </label>
+                <div className="max-h-40 overflow-y-scroll">
+                  {financialGoal.transactions &&
+                    (financialGoal.transactions as Transaction[]).map(
+                      (transaction) => (
+                        <div key={transaction.id} className="flex items-center">
+                          <p className="flex-grow">{transaction.amount}</p>
+                          <p>{transaction.createdAt}</p>
+                        </div>
+                      ),
+                    )}
+                </div>
+              </div>
+              <div className="flex flex-col items-start gap-x-4">
+                <label htmlFor="amount" className="w-full font-medium">
+                  Amount
+                </label>
+                <input
+                  type="number"
+                  name="amount"
+                  id="amount"
+                  className="mt-1 w-full rounded-lg border border-slate-200 p-3"
+                  inputMode="numeric"
+                  onKeyDown={(e) => {
+                    // Only allow numbers
+                    if (
+                      !(
+                        (e.key >= "0" && e.key <= "9") ||
+                        e.key === "Backspace" ||
+                        e.key === "Delete" ||
+                        e.key === "ArrowLeft" ||
+                        e.key === "ArrowRight" ||
+                        e.key === "ArrowUp" ||
+                        e.key === "ArrowDown" ||
+                        e.key === "Tab"
+                      )
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    void setFieldValue("amount", e.target.value);
+                  }}
+                />
+                <ErrorMessage
+                  name="amount"
+                  component="div"
+                  className="text-red-500"
+                />
+              </div>
+              <div className="mt-6 flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() => onClose()}
+                  className="btn btn-ghost w-24"
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="ml-4 w-24 rounded-lg border border-secondary bg-tertiary p-3 text-sm font-bold text-primary transition-all hover:bg-secondary active:scale-95"
+                  disabled={isSubmitting}
+                >
+                  Add
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+      </div>
+    </Modal>
+  );
+};
+
+export default FinancialGoalModal;

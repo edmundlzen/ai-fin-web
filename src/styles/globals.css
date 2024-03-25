@@ -28,6 +28,10 @@ svg {
   transition: all 0.5s ease;
 }
 
+.loader.primary {
+  stroke: #3e48d0;
+}
+
 .loader.grey {
   stroke: #c1c1c1;
 }

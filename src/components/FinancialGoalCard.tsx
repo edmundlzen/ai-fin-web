@@ -1,6 +1,7 @@
 import { FinancialGoal, Wallet } from "~/gql/graphql";
 import { Box, Emoji } from ".";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 // export type Transaction = {
 //   __typename?: 'Transaction';
@@ -12,12 +13,16 @@ import dayjs from "dayjs";
 //   wallet_id: Scalars['String']['output'];
 // };
 
+dayjs.extend(relativeTime);
+
 export default function FinancialGoalCard({
   financialGoal,
   wallet,
+  onClick,
 }: {
   financialGoal: FinancialGoal;
   wallet: Wallet;
+  onClick?: () => void;
 }) {
   const totalSavedAmount = wallet.transactions.reduce(
     (acc, transaction) =>
@@ -63,7 +68,10 @@ export default function FinancialGoalCard({
   const netThisMonth = -thisMonthGoal + thisMonthSavedAmount;
 
   return (
-    <Box className="flex w-full flex-col items-center justify-start">
+    <Box
+      className="flex w-full cursor-pointer flex-col items-center justify-start transition-all hover:scale-95 active:scale-90"
+      onClick={onClick}
+    >
       <div className="flex w-full flex-col items-center justify-start p-2">
         <div className="flex h-12 w-full items-center">
           <Emoji name={financialGoal.emoji} className="h-full" />
@@ -72,7 +80,7 @@ export default function FinancialGoalCard({
               {financialGoal.name}
             </h3>
             <h4 className="text-sm font-semibold text-secondary-text">
-              {monthsLeft} months left
+              {dayjs().to(dayjs().add(monthsLeft, "months"))}
             </h4>
           </div>
           <div className="w-fit">
