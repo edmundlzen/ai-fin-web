@@ -5,6 +5,7 @@ import { graphql } from "~/gql";
 import { useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 import { Transaction, type FinancialGoal } from "~/gql/graphql";
+import dayjs from "dayjs";
 
 const AddTransactionSchema = Yup.object().shape({
   amount: Yup.number().required("Amount is required"),
@@ -88,28 +89,30 @@ const FinancialGoalModal = ({
           {({ isSubmitting, setFieldValue, values }) => (
             <Form className="flex flex-col gap-y-4">
               <div className="flex flex-col items-start gap-x-4">
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={() => {
-                    console.log(financialGoal.transactions);
-                  }}
-                >
-                  Show Transactions
-                </button>
                 <label htmlFor="amount" className="w-full font-medium">
                   Transaction History
                 </label>
                 <div className="max-h-40 overflow-y-scroll">
-                  {financialGoal.transactions &&
-                    (financialGoal.transactions as Transaction[]).map(
-                      (transaction) => (
-                        <div key={transaction.id} className="flex items-center">
-                          <p className="flex-grow">{transaction.amount}</p>
-                          <p>{transaction.createdAt}</p>
-                        </div>
-                      ),
-                    )}
+                  <table className="w-full">
+                    <thead>
+                      <tr>
+                        <th>Amount</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {financialGoal.transactions?.map((transaction) => (
+                        <tr key={transaction.id}>
+                          <td>{transaction.amount}</td>
+                          <td>
+                            {dayjs(transaction.createdAt as string).format(
+                              "DD/MM/YYYY",
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
               <div className="flex flex-col items-start gap-x-4">
@@ -133,7 +136,9 @@ const FinancialGoalModal = ({
                         e.key === "ArrowRight" ||
                         e.key === "ArrowUp" ||
                         e.key === "ArrowDown" ||
-                        e.key === "Tab"
+                        e.key === "Tab" ||
+                        e.key === "." ||
+                        e.key === "-"
                       )
                     ) {
                       e.preventDefault();

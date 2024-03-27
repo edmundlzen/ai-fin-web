@@ -120,7 +120,7 @@ export default function Dashboard() {
     console.log(data);
   }, [data]);
 
-  if (loading) {
+  if (loading || !data) {
     return <p>Loading...</p>;
   }
 
@@ -189,14 +189,14 @@ export default function Dashboard() {
           </h3>
           <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
             <Icon icon="ant-design:rise-outlined" className="text-positive" />
-            {data!.user.wallet.transactions
+            {data.user.wallet.transactions
               .filter(
                 (transaction) =>
                   dayjs().diff(dayjs(transaction.createdAt as string), "day") <
                   30,
               )
               .reduce((acc, curr) => acc + curr.amount, 0) /
-              data!.user.wallet.transactions
+              data.user.wallet.transactions
                 .filter(
                   (transaction) =>
                     dayjs().diff(
@@ -213,7 +213,7 @@ export default function Dashboard() {
           <CircleProgressBar
             percentage={0}
             amount={
-              data!.user.financial_goal
+              data.user.financial_goal
                 .filter(
                   (goal) =>
                     dayjs().diff(dayjs(goal.createdAt as string), "day") <
