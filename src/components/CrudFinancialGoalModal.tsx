@@ -8,6 +8,7 @@ import { Icon } from "@iconify-icon/react/dist/iconify.mjs";
 import { graphql } from "~/gql";
 import { useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
+import { FinancialGoal } from "~/gql/graphql";
 
 const AddFinancialGoalSchema = Yup.object().shape({
   emoji: Yup.string().required("Required"),
@@ -34,12 +35,16 @@ const CREATE_FINANCIAL_GOAL = graphql(`
   }
 `);
 
-const AddFinancialGoalModal = ({
+const CrudFinancialGoalModal = ({
   isOpen,
   onClose,
+  onSuccess,
+  oldFinancialGoal,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
+  oldFinancialGoal?: FinancialGoal;
 }) => {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [emojiSearchQuery, setEmojiSearchQuery] = useState("");
@@ -82,6 +87,7 @@ const AddFinancialGoalModal = ({
                 },
               });
               toast.success("Financial goal added successfully");
+              onSuccess?.();
               onClose();
             } catch (error) {
               toast.error("An error occurred");
@@ -301,4 +307,4 @@ const AddFinancialGoalModal = ({
   );
 };
 
-export default AddFinancialGoalModal;
+export default CrudFinancialGoalModal;

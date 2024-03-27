@@ -6,6 +6,8 @@ import { useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 import { Transaction, type FinancialGoal } from "~/gql/graphql";
 import dayjs from "dayjs";
+import { Icon } from "@iconify-icon/react/dist/iconify.mjs";
+import { useState } from "react";
 
 const AddTransactionSchema = Yup.object().shape({
   amount: Yup.number().required("Amount is required"),
@@ -29,11 +31,15 @@ const FinancialGoalModal = ({
   onClose,
   financialGoal,
   walletId,
+  onEdit,
+  onDelete,
 }: {
   isOpen: boolean;
   onClose: () => void;
   financialGoal?: FinancialGoal | null;
   walletId: string;
+  onEdit: () => void;
+  onDelete: () => void;
 }) => {
   const [mutateFunction, { data, loading, error }] = useMutation<
     { createTransaction: { id: string } },
@@ -45,137 +51,208 @@ const FinancialGoalModal = ({
       };
     }
   >(CREATE_TRANSACTION);
+  const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] =
+    useState(false);
 
   if (!financialGoal) return null;
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      center
-      showCloseIcon={false}
-      classNames={{
-        modal: "rounded-lg w-10/12",
-      }}
-    >
-      <h2 className="text-xl font-semibold">{financialGoal.name}</h2>
-      <div className="mt-3">
-        <Formik
-          initialValues={{
-            amount: 0,
-          }}
-          validationSchema={AddTransactionSchema}
-          onSubmit={async (values) => {
-            console.log(values);
-            try {
-              await mutateFunction({
-                variables: {
-                  createTransactionInput: {
-                    amount: +values.amount,
-                    financial_goal_id: financialGoal.id,
-                    wallet_id: walletId,
+    <>
+      <Modal
+        open={isConfirmDeleteModalOpen}
+        onClose={() => setIsConfirmDeleteModalOpen(false)}
+        center
+        showCloseIcon={false}
+        classNames={{
+          modal: "rounded-lg w-10/12",
+        }}
+      >
+        <h2 className="text-xl font-semibold">Delete financial goal</h2>
+        <div className="mt-3">
+          <p className="text-lg">
+            Are you sure you want to delete this financial goal?
+          </p>
+          <div className="mt-6 flex items-center justify-end">
+            <button
+              type="button"
+              onClick={() => setIsConfirmDeleteModalOpen(false)}
+              className="btn btn-ghost"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsConfirmDeleteModalOpen(false);
+                void onDelete();
+              }}
+              className="btn btn-outline btn-error ml-4"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
+      <Modal
+        open={isOpen}
+        onClose={onClose}
+        center
+        showCloseIcon={false}
+        classNames={{
+          modal: "rounded-lg w-10/12",
+        }}
+      >
+        <div className="flex items-center justify-start">
+          <h2 className="mr-auto text-xl font-semibold">
+            {financialGoal.name}
+          </h2>
+          <button
+            type="button"
+            onClick={() => {
+              onEdit();
+            }}
+            className="btn btn-ghost mr-4"
+          >
+            <Icon
+              icon="akar-icons:edit"
+              className="flex items-center justify-center"
+              width="18"
+              height="18"
+            />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsConfirmDeleteModalOpen(true);
+            }}
+            className="btn btn-ghost"
+          >
+            <Icon
+              icon="ph:trash"
+              className="flex items-center justify-center"
+              width="18"
+              height="18"
+            />
+          </button>
+        </div>
+        <div className="mt-3">
+          <Formik
+            initialValues={{
+              amount: 0,
+            }}
+            validationSchema={AddTransactionSchema}
+            onSubmit={async (values) => {
+              console.log(values);
+              try {
+                await mutateFunction({
+                  variables: {
+                    createTransactionInput: {
+                      amount: +values.amount,
+                      financial_goal_id: financialGoal.id,
+                      wallet_id: walletId,
+                    },
                   },
-                },
-              });
-              toast.success("Transaction added successfully");
-              onClose();
-            } catch (error) {
-              toast.error("Failed to add transaction");
-            }
-          }}
-          validateOnMount
-          validateOnBlur
-          validateOnChange
-        >
-          {({ isSubmitting, setFieldValue, values }) => (
-            <Form className="flex flex-col gap-y-4">
-              <div className="flex flex-col items-start gap-x-4">
-                <label htmlFor="amount" className="w-full font-medium">
-                  Transaction History
-                </label>
-                <div className="max-h-40 overflow-y-scroll">
-                  <table className="w-full">
-                    <thead>
-                      <tr>
-                        <th>Amount</th>
-                        <th>Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {financialGoal.transactions?.map((transaction) => (
-                        <tr key={transaction.id}>
-                          <td>{transaction.amount}</td>
-                          <td>
-                            {dayjs(transaction.createdAt as string).format(
-                              "DD/MM/YYYY",
-                            )}
-                          </td>
+                });
+                toast.success("Transaction added successfully");
+                onClose();
+              } catch (error) {
+                toast.error("Failed to add transaction");
+              }
+            }}
+            validateOnMount
+            validateOnBlur
+            validateOnChange
+          >
+            {({ isSubmitting, setFieldValue, values }) => (
+              <Form className="flex flex-col gap-y-4">
+                <div className="flex flex-col items-start gap-x-4">
+                  <label htmlFor="amount" className="w-full font-medium">
+                    Transaction History
+                  </label>
+                  <div className="max-h-40 overflow-y-scroll">
+                    <table className="w-full">
+                      <thead>
+                        <tr>
+                          <th>Amount</th>
+                          <th>Date</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {financialGoal.transactions?.map((transaction) => (
+                          <tr key={transaction.id}>
+                            <td>{transaction.amount}</td>
+                            <td>
+                              {dayjs(transaction.createdAt as string).format(
+                                "DD/MM/YYYY",
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col items-start gap-x-4">
-                <label htmlFor="amount" className="w-full font-medium">
-                  Amount
-                </label>
-                <input
-                  type="number"
-                  name="amount"
-                  id="amount"
-                  className="mt-1 w-full rounded-lg border border-slate-200 p-3"
-                  inputMode="numeric"
-                  onKeyDown={(e) => {
-                    // Only allow numbers
-                    if (
-                      !(
-                        (e.key >= "0" && e.key <= "9") ||
-                        e.key === "Backspace" ||
-                        e.key === "Delete" ||
-                        e.key === "ArrowLeft" ||
-                        e.key === "ArrowRight" ||
-                        e.key === "ArrowUp" ||
-                        e.key === "ArrowDown" ||
-                        e.key === "Tab" ||
-                        e.key === "." ||
-                        e.key === "-"
-                      )
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                  onChange={(e) => {
-                    void setFieldValue("amount", e.target.value);
-                  }}
-                />
-                <ErrorMessage
-                  name="amount"
-                  component="div"
-                  className="text-red-500"
-                />
-              </div>
-              <div className="mt-6 flex items-center justify-end">
-                <button
-                  type="button"
-                  onClick={() => onClose()}
-                  className="btn btn-ghost w-24"
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="ml-4 w-24 rounded-lg border border-secondary bg-tertiary p-3 text-sm font-bold text-primary transition-all hover:bg-secondary active:scale-95"
-                  disabled={isSubmitting}
-                >
-                  Add
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
-      </div>
-    </Modal>
+                <div className="flex flex-col items-start gap-x-4">
+                  <label htmlFor="amount" className="w-full font-medium">
+                    Amount
+                  </label>
+                  <input
+                    type="number"
+                    name="amount"
+                    id="amount"
+                    className="mt-1 w-full rounded-lg border border-slate-200 p-3"
+                    inputMode="numeric"
+                    onKeyDown={(e) => {
+                      // Only allow numbers
+                      if (
+                        !(
+                          (e.key >= "0" && e.key <= "9") ||
+                          e.key === "Backspace" ||
+                          e.key === "Delete" ||
+                          e.key === "ArrowLeft" ||
+                          e.key === "ArrowRight" ||
+                          e.key === "ArrowUp" ||
+                          e.key === "ArrowDown" ||
+                          e.key === "Tab" ||
+                          e.key === "." ||
+                          e.key === "-"
+                        )
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      void setFieldValue("amount", e.target.value);
+                    }}
+                  />
+                  <ErrorMessage
+                    name="amount"
+                    component="div"
+                    className="text-red-500"
+                  />
+                </div>
+                <div className="mt-6 flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={() => onClose()}
+                    className="btn btn-ghost w-24"
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="ml-4 w-24 rounded-lg border border-secondary bg-tertiary p-3 text-sm font-bold text-primary transition-all hover:bg-secondary active:scale-95"
+                    disabled={isSubmitting}
+                  >
+                    Add
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </Modal>
+    </>
   );
 };
 

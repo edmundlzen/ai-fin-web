@@ -1,4 +1,4 @@
-import { AddFinancialGoalModal, Box, Emoji } from "~/components";
+import { CrudFinancialGoalModal, Box, Emoji } from "~/components";
 import { Icon } from "@iconify-icon/react";
 import { useEffect, useState } from "react";
 import Chart from "~/components/Chart";
@@ -107,14 +107,14 @@ const GET_USER_DATA = graphql(`
 export default function Dashboard() {
   const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
-  const { data, loading, error } = useQuery<{ user: User }, { userId: string }>(
-    GET_USER_DATA,
-    {
-      variables: {
-        userId: userId ?? "",
-      },
+  const { data, loading, error, refetch } = useQuery<
+    { user: User },
+    { userId: string }
+  >(GET_USER_DATA, {
+    variables: {
+      userId: userId ?? "",
     },
-  );
+  });
 
   useEffect(() => {
     console.log(data);
@@ -126,9 +126,12 @@ export default function Dashboard() {
 
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
-      <AddFinancialGoalModal
+      <CrudFinancialGoalModal
         isOpen={goalModalOpen}
         onClose={() => setGoalModalOpen(false)}
+        onSuccess={() => {
+          void refetch();
+        }}
       />
       <div className="w-full">
         <h1 className="font-serif text-5xl">Dashboard</h1>

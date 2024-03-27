@@ -1,5 +1,5 @@
 import {
-  AddFinancialGoalModal,
+  CrudFinancialGoalModal,
   Box,
   Emoji,
   FinancialGoalCard,
@@ -76,7 +76,7 @@ export default function FinancialGoals() {
 
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
-      <AddFinancialGoalModal
+      <CrudFinancialGoalModal
         isOpen={goalModalOpen}
         onClose={() => setGoalModalOpen(false)}
       />
