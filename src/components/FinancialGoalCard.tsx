@@ -112,7 +112,9 @@ export default function FinancialGoalCard({
             <h4 className="font-semibold">This month</h4>
             <h3 className="text-3xl font-bold">
               RM {thisMonthSavedAmount}
-              <span className="text-xs font-medium">/RM {thisMonthGoal}</span>
+              <span className="text-xs font-medium">
+                /RM {thisMonthGoal.toFixed(2)}
+              </span>
             </h3>
           </div>
           <div className="ml-4">
@@ -131,7 +133,7 @@ export default function FinancialGoalCard({
               }
             >
               {(netThisMonth !== 0 ? "RM" : "-") +
-                (netThisMonth !== 0 ? Math.abs(netThisMonth) : "")}
+                (netThisMonth !== 0 ? Math.abs(netThisMonth).toFixed(2) : "")}
             </h3>
           </div>
         </div>

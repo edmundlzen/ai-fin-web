@@ -1,5 +1,5 @@
 import {
-  AddFinancialGoalModal,
+  CrudFinancialGoalModal,
   Box,
   Emoji,
   FinancialGoalCard,

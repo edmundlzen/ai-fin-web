@@ -10,7 +10,7 @@ import { useMutation } from "@apollo/client";
 import { toast } from "react-toastify";
 import { FinancialGoal } from "~/gql/graphql";
 
-const AddFinancialGoalSchema = Yup.object().shape({
+const FinancialGoalSchema = Yup.object().shape({
   emoji: Yup.string().required("Required"),
   name: Yup.string().required("Required").min(3, "Too short"),
   totalAmount: Yup.number().required("Required").min(50, "Too low"),
@@ -35,6 +35,22 @@ const CREATE_FINANCIAL_GOAL = graphql(`
   }
 `);
 
+const UPDATE_FINANCIAL_GOAL = graphql(`
+  mutation UpdateFinancialGoal(
+    $updateFinancialGoalInput: UpdateFinancialGoalInput!
+  ) {
+    updateFinancialGoal(updateFinancialGoalInput: $updateFinancialGoalInput) {
+      id
+      name
+      emoji
+      amount
+      months_to_reach_goal
+      createdAt
+      updatedAt
+    }
+  }
+`);
+
 const CrudFinancialGoalModal = ({
   isOpen,
   onClose,
@@ -44,14 +60,15 @@ const CrudFinancialGoalModal = ({
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  oldFinancialGoal?: FinancialGoal;
+  oldFinancialGoal?: FinancialGoal | null;
 }) => {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [emojiSearchQuery, setEmojiSearchQuery] = useState("");
   const [emojiPage, setEmojiPage] = useState(0);
-  const [mutateFunction, { data, loading, error }] = useMutation(
+  const [createFinancialGoal, { data, loading, error }] = useMutation(
     CREATE_FINANCIAL_GOAL,
   );
+  const [updateFinancialGoal] = useMutation(UPDATE_FINANCIAL_GOAL);
 
   return (
     <Modal
@@ -63,20 +80,32 @@ const CrudFinancialGoalModal = ({
         modal: "rounded-lg w-10/12",
       }}
     >
-      <h2 className="text-xl font-semibold">Add a new financial goal</h2>
+      <h2 className="text-xl font-semibold">
+        {oldFinancialGoal ? "Edit" : "Add"} a new financial goal
+      </h2>
       <div className="mt-3">
         <Formik
-          initialValues={{
-            emoji: "question-mark",
-            name: "",
-            totalAmount: 0,
-            monthsToReachGoal: 0,
-          }}
-          validationSchema={AddFinancialGoalSchema}
+          initialValues={
+            oldFinancialGoal
+              ? {
+                  emoji: oldFinancialGoal?.emoji ?? "question-mark",
+                  name: oldFinancialGoal?.name ?? "",
+                  totalAmount: oldFinancialGoal?.amount ?? 0,
+                  monthsToReachGoal:
+                    oldFinancialGoal?.months_to_reach_goal ?? 0,
+                }
+              : {
+                  emoji: "question-mark",
+                  name: "",
+                  totalAmount: 0,
+                  monthsToReachGoal: 0,
+                }
+          }
+          enableReinitialize
+          validationSchema={FinancialGoalSchema}
           onSubmit={async (values) => {
-            console.log(values);
             try {
-              await mutateFunction({
+              const variables = {
                 variables: {
                   createFinancialGoalInput: {
                     emoji: values.emoji,
@@ -85,13 +114,25 @@ const CrudFinancialGoalModal = ({
                     months_to_reach_goal: +values.monthsToReachGoal,
                   },
                 },
-              });
-              toast.success("Financial goal added successfully");
-              onSuccess?.();
-              onClose();
+              };
+              if (oldFinancialGoal) {
+                await updateFinancialGoal({
+                  variables: {
+                    updateFinancialGoalInput: {
+                      id: oldFinancialGoal.id,
+                      ...variables.variables.createFinancialGoalInput,
+                    },
+                  },
+                });
+              } else {
+                await createFinancialGoal(variables);
+              }
             } catch (error) {
               toast.error("An error occurred");
             }
+            toast.success("Financial goal added successfully");
+            onSuccess?.();
+            onClose();
           }}
           validateOnMount
           validateOnBlur
@@ -193,6 +234,7 @@ const CrudFinancialGoalModal = ({
                   name="name"
                   id="name"
                   className="mt-1 w-full rounded-lg border border-slate-200 p-3"
+                  value={values.name}
                   onChange={(e) => {
                     void setFieldValue("name", e.target.value);
                   }}
@@ -213,6 +255,7 @@ const CrudFinancialGoalModal = ({
                   id="totalAmount"
                   className="mt-1 w-full rounded-lg border border-slate-200 p-3"
                   inputMode="numeric"
+                  value={values.totalAmount}
                   onKeyDown={(e) => {
                     // Only allow numbers
                     if (
@@ -252,6 +295,7 @@ const CrudFinancialGoalModal = ({
                   name="monthsToReachGoal"
                   id="monthsToReachGoal"
                   className="mt-1 w-full rounded-lg border border-slate-200 p-3"
+                  value={values.monthsToReachGoal}
                   onChange={(e) => {
                     void setFieldValue("monthsToReachGoal", e.target.value);
                   }}

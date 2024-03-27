@@ -33,13 +33,15 @@ const FinancialGoalModal = ({
   walletId,
   onEdit,
   onDelete,
+  onTransactionAddSuccess,
 }: {
   isOpen: boolean;
   onClose: () => void;
   financialGoal?: FinancialGoal | null;
   walletId: string;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit: () => Promise<void>;
+  onDelete: () => Promise<void>;
+  onTransactionAddSuccess: () => void;
 }) => {
   const [mutateFunction, { data, loading, error }] = useMutation<
     { createTransaction: { id: string } },
@@ -108,7 +110,7 @@ const FinancialGoalModal = ({
           <button
             type="button"
             onClick={() => {
-              onEdit();
+              void onEdit();
             }}
             className="btn btn-ghost mr-4"
           >
@@ -153,6 +155,7 @@ const FinancialGoalModal = ({
                   },
                 });
                 toast.success("Transaction added successfully");
+                onTransactionAddSuccess();
                 onClose();
               } catch (error) {
                 toast.error("Failed to add transaction");
