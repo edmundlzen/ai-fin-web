@@ -130,7 +130,9 @@ const CrudFinancialGoalModal = ({
             } catch (error) {
               toast.error("An error occurred");
             }
-            toast.success("Financial goal added successfully");
+            toast.success(
+              `Financial goal ${oldFinancialGoal ? "edited" : "added"} successfully`,
+            );
             onSuccess?.();
             onClose();
           }}
@@ -340,7 +342,7 @@ const CrudFinancialGoalModal = ({
                   className="ml-4 w-24 rounded-lg border border-secondary bg-tertiary p-3 text-sm font-bold text-primary transition-all hover:bg-secondary active:scale-95"
                   disabled={isSubmitting}
                 >
-                  Add
+                  {oldFinancialGoal ? "Edit" : "Add"}
                 </button>
               </div>
             </Form>

@@ -73,8 +73,8 @@ export default function FinancialGoals() {
   const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
-  const [activeFinancialGoal, setActiveFinancialGoal] =
-    useState<FinancialGoal | null>(null);
+  const [activeFinancialGoalId, setActiveFinancialGoalId] =
+    useState<string | null>(null);
   const { data, loading, error, refetch } = useQuery<
     { user: User },
     { userId: string }
@@ -93,7 +93,9 @@ export default function FinancialGoals() {
       <CrudFinancialGoalModal
         isOpen={goalModalOpen}
         onClose={() => setGoalModalOpen(false)}
-        oldFinancialGoal={activeFinancialGoal}
+        oldFinancialGoal={data?.user.financial_goal.find(
+          (goal) => goal.id === activeFinancialGoalId,
+        )}
         onSuccess={async () => {
           await refetch();
         }}
@@ -101,7 +103,9 @@ export default function FinancialGoals() {
       <FinancialGoalModal
         isOpen={transactionModalOpen}
         onClose={() => setTransactionModalOpen(false)}
-        financialGoal={activeFinancialGoal}
+        financialGoal={data?.user.financial_goal.find(
+          (goal) => goal.id === activeFinancialGoalId,
+        )}
         walletId={data?.user.wallet.id ?? ""}
         onTransactionAddSuccess={async () => {
           await refetch();
@@ -111,17 +115,19 @@ export default function FinancialGoals() {
           setGoalModalOpen(true);
         }}
         onDelete={async () => {
-          if (activeFinancialGoal) {
-            console.log(activeFinancialGoal.id);
+          if (activeFinancialGoalId) {
             await removeFinancialGoal({
               variables: {
-                removeFinancialGoalId: activeFinancialGoal.id,
+                removeFinancialGoalId: activeFinancialGoalId
               },
             });
             toast.success("Financial goal deleted successfully");
             setTransactionModalOpen(false);
             await refetch();
           }
+        }}
+        onTransactionDeleteSuccess={async () => {
+          await refetch();
         }}
       />
       <div className="w-full">
@@ -135,7 +141,7 @@ export default function FinancialGoals() {
               financialGoal={goal}
               wallet={data.user.wallet}
               onClick={() => {
-                setActiveFinancialGoal(goal);
+                setActiveFinancialGoalId(goal.id);
                 setTransactionModalOpen(true);
               }}
             />
@@ -149,7 +155,7 @@ export default function FinancialGoals() {
         <button
           className="flex w-full items-center justify-center rounded-lg border border-slate-200 p-3 text-sm font-bold transition-all hover:bg-slate-100 active:scale-95"
           onClick={() => {
-            setActiveFinancialGoal(null);
+            setActiveFinancialGoalId(null);
             setGoalModalOpen(true);
           }}
         >
