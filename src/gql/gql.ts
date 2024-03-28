@@ -20,7 +20,11 @@ const documents = {
     "\n  query User($userId: String!) {\n    user(id: $userId) {\n      id\n      email\n      username\n      phone\n      birth_year\n      experience\n      createdAt\n      updatedAt\n      wallet {\n        id\n        createdAt\n        updatedAt\n        transactions {\n          id\n          amount\n          wallet_id\n          financial_goal {\n            name\n          }\n        }\n      }\n      wallet_id\n      financial_goal {\n        id\n        userId\n        emoji\n        name\n        amount\n        months_to_reach_goal\n        createdAt\n        updatedAt\n      }\n    }\n  }\n": types.UserDocument,
     "\n  query FinancialGoalsData($userId: String!) {\n    user(id: $userId) {\n      id\n      email\n      username\n      phone\n      birth_year\n      experience\n      createdAt\n      updatedAt\n      wallet {\n        id\n        createdAt\n        updatedAt\n        transactions {\n          id\n          amount\n          wallet_id\n          financial_goal_id\n          createdAt\n          updatedAt\n        }\n      }\n      wallet_id\n      financial_goal {\n        id\n        userId\n        emoji\n        name\n        amount\n        months_to_reach_goal\n        createdAt\n        updatedAt\n        transactions {\n          id\n          amount\n          wallet_id\n          financial_goal_id\n          createdAt\n          updatedAt\n        }\n      }\n    }\n  }\n": types.FinancialGoalsDataDocument,
     "\n  mutation RemoveFinancialGoal($removeFinancialGoalId: String!) {\n    removeFinancialGoal(id: $removeFinancialGoalId) {\n      id\n      name\n    }\n  }\n": types.RemoveFinancialGoalDocument,
+    "\n  query UserGamificationInfo($userId: String!) {\n    user(id: $userId) {\n      level\n      experience\n      user_completed_task {\n        taskId\n        achieved\n      }\n    }\n\n    Task {\n      id\n      title\n      description\n      points\n      requiredAmount\n      createdAt\n      updatedAt\n      type\n      timing\n    }\n  }\n": types.UserGamificationInfoDocument,
     "\n  mutation SigninUser($signinUserInput: SigninUserInput!) {\n    signinUser(signinUserInput: $signinUserInput) {\n      access_token\n    }\n  }\n": types.SigninUserDocument,
+    "\n  query UserNewsTopicFollowed($userId: String!) {\n    user(id: $userId) {\n      news_topics_followed\n    }\n  }\n": types.UserNewsTopicFollowedDocument,
+    "\n  mutation UpdateUserNewsTopicFollowed($updateUserInput: UpdateUserInput!) {\n    updateUser(updateUserInput: $updateUserInput) {\n      news_topics_followed\n    }\n  }\n": types.UpdateUserNewsTopicFollowedDocument,
+    "\n  query UserNews {\n    News {\n      source {\n        id\n        name\n      }\n      author\n      title\n      description\n      url\n      urlToImage\n      publishedAt\n      content\n    }\n  }\n": types.UserNewsDocument,
     "\n  mutation CreateOrUpdateUserInfo(\n    $createOrUpdateUserInfoInput: CreateOrUpdateUserInfoInput!\n  ) {\n    createOrUpdateUserInfo(\n      createOrUpdateUserInfoInput: $createOrUpdateUserInfoInput\n    ) {\n      userId\n      updatedAt\n    }\n  }\n": types.CreateOrUpdateUserInfoDocument,
     "\n  mutation SignupUser($signupUserInput: SignupUserInput!) {\n    signupUser(signupUserInput: $signupUserInput) {\n      access_token\n    }\n  }\n": types.SignupUserDocument,
 };
@@ -70,7 +74,23 @@ export function graphql(source: "\n  mutation RemoveFinancialGoal($removeFinanci
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n  query UserGamificationInfo($userId: String!) {\n    user(id: $userId) {\n      level\n      experience\n      user_completed_task {\n        taskId\n        achieved\n      }\n    }\n\n    Task {\n      id\n      title\n      description\n      points\n      requiredAmount\n      createdAt\n      updatedAt\n      type\n      timing\n    }\n  }\n"): (typeof documents)["\n  query UserGamificationInfo($userId: String!) {\n    user(id: $userId) {\n      level\n      experience\n      user_completed_task {\n        taskId\n        achieved\n      }\n    }\n\n    Task {\n      id\n      title\n      description\n      points\n      requiredAmount\n      createdAt\n      updatedAt\n      type\n      timing\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n  mutation SigninUser($signinUserInput: SigninUserInput!) {\n    signinUser(signinUserInput: $signinUserInput) {\n      access_token\n    }\n  }\n"): (typeof documents)["\n  mutation SigninUser($signinUserInput: SigninUserInput!) {\n    signinUser(signinUserInput: $signinUserInput) {\n      access_token\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query UserNewsTopicFollowed($userId: String!) {\n    user(id: $userId) {\n      news_topics_followed\n    }\n  }\n"): (typeof documents)["\n  query UserNewsTopicFollowed($userId: String!) {\n    user(id: $userId) {\n      news_topics_followed\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdateUserNewsTopicFollowed($updateUserInput: UpdateUserInput!) {\n    updateUser(updateUserInput: $updateUserInput) {\n      news_topics_followed\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateUserNewsTopicFollowed($updateUserInput: UpdateUserInput!) {\n    updateUser(updateUserInput: $updateUserInput) {\n      news_topics_followed\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query UserNews {\n    News {\n      source {\n        id\n        name\n      }\n      author\n      title\n      description\n      url\n      urlToImage\n      publishedAt\n      content\n    }\n  }\n"): (typeof documents)["\n  query UserNews {\n    News {\n      source {\n        id\n        name\n      }\n      author\n      title\n      description\n      url\n      urlToImage\n      publishedAt\n      content\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

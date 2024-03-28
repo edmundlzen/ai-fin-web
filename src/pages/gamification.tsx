@@ -1,6 +1,36 @@
 import { Box, Emoji } from "~/components";
 import { useState } from "react";
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs";
+import { graphql } from "~/gql";
+import useAuth from "~/hooks/useAuth";
+import { useQuery } from "@apollo/client";
+import level_exp_scaling from "~/constants/level_exp_scaling";
+import { Task } from "~/gql/graphql";
+
+const GET_USER_GAMIFICATION_INFO = graphql(`
+  query UserGamificationInfo($userId: String!) {
+    user(id: $userId) {
+      level
+      experience
+      user_completed_task {
+        taskId
+        achieved
+      }
+    }
+
+    Task {
+      id
+      title
+      description
+      points
+      requiredAmount
+      createdAt
+      updatedAt
+      type
+      timing
+    }
+  }
+`);
 
 export default function Gamification() {
   const circleRadius = 50;
@@ -8,6 +38,21 @@ export default function Gamification() {
   const circleCircumference = 2 * Math.PI * circleRadius;
   const maxCircleCircumference = circleCircumference * 0.75;
   const [displayedPercentage, setDisplayedPercentage] = useState(0);
+
+  const { userId } = useAuth();
+  const { data, loading, error } = useQuery<
+    {
+      user: {
+        level: number;
+        experience: number;
+        user_completed_task: { taskId: string; achieved: number }[];
+      };
+      Task: Task[];
+    },
+    { userId: string }
+  >(GET_USER_GAMIFICATION_INFO, {
+    variables: { userId: userId ?? "" },
+  });
 
   return (
     <main className="flex min-h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
@@ -21,19 +66,21 @@ export default function Gamification() {
           </div>
           <div className="ml-4 flex flex-col items-start justify-start">
             <h3 className="">Level</h3>
-            <h4 className="text-3xl font-semibold">3</h4>
+            <h4 className="text-3xl font-semibold">{data?.user.level}</h4>
           </div>
         </div>
         <div className="flex w-full items-end justify-end px-2">
           <div className="">
-            700/1000 <span className="text-xs font-normal">EXP</span>
+            {data?.user.experience}/
+            {level_exp_scaling[data?.user.level ?? 1] ?? 0}{" "}
+            <span className="text-xs font-normal">EXP</span>
           </div>
         </div>
         <div className="relative mt-1 h-2 w-full overflow-hidden rounded-b-md bg-[#e1e0e9]">
           <div
             className="absolute left-0 top-0 h-2 rounded-r-sm bg-[#4277ff]"
             style={{
-              width: `${0.7 * 100}%`,
+              width: `${((data?.user.experience ?? 0) / 1000) * 100}%`,
             }}
           />
         </div>
@@ -41,11 +88,20 @@ export default function Gamification() {
       <Box className="flex w-full flex-col items-start justify-start p-3">
         <h1 className="text-2xl font-semibold">Tasks</h1>
         <div className="mt-2 flex w-full flex-col items-start justify-start gap-y-4">
-          <TaskMessage
-            title="Read 5 articles"
-            message="Read 5 articles to earn 500 EXP."
-            link="/survey"
-          />
+          {data?.Task.map((task) => (
+            <TaskMessage
+              key={task.id}
+              title={task.title}
+              message={task.description}
+              currentProgress={
+                data?.user.user_completed_task.find(
+                  (userTask) => userTask.taskId === task.id,
+                )?.achieved
+              }
+              requiredAmount={task.requiredAmount}
+              link="/survey"
+            />
+          ))}
         </div>
       </Box>
       <Box className="flex h-fit w-full flex-col items-start justify-start overflow-hidden">
@@ -95,11 +151,15 @@ function TaskMessage({
   title,
   message,
   link,
+  currentProgress,
+  requiredAmount,
 }: {
   title: string;
   message: string;
   // TODO: Implement link
   link: string;
+  currentProgress?: number;
+  requiredAmount: number;
 }) {
   return (
     <Box className="flex w-full flex-col items-start justify-start">
@@ -108,7 +168,11 @@ function TaskMessage({
           <h3 className="text-base font-semibold leading-tight">{title}</h3>
           <p className="mt-1 text-xs leading-tight">{message}</p>
           <p className="text-xs leading-tight">
-            (Current progress: <span className="font-semibold">3/5</span>)
+            (Current progress:{" "}
+            <span className="font-semibold">
+              {currentProgress ?? 0}/{requiredAmount}
+            </span>
+            )
           </p>
         </div>
         <button className="flex w-fit items-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary">
@@ -120,7 +184,7 @@ function TaskMessage({
         <div
           className="absolute left-0 top-0 h-2 rounded-r-sm bg-[#4277ff]"
           style={{
-            width: `${0.7 * 100}%`,
+            width: `${((currentProgress ?? 0) / requiredAmount) * 100}%`,
           }}
         />
       </div>

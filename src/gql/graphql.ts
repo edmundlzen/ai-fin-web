@@ -177,8 +177,35 @@ export type MutationUpdateUserArgs = {
   updateUserInput: UpdateUserInput;
 };
 
+export type News = {
+  __typename?: 'News';
+  author?: Maybe<Scalars['String']['output']>;
+  content: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  publishedAt: Scalars['String']['output'];
+  source: NewsSource;
+  title: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+  urlToImage?: Maybe<Scalars['String']['output']>;
+};
+
+export type NewsSource = {
+  __typename?: 'NewsSource';
+  id?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+};
+
+export enum NewsTopic {
+  Company = 'COMPANY',
+  FinanceLiteracy = 'FINANCE_LITERACY',
+  Financial = 'FINANCIAL',
+  Investment = 'INVESTMENT'
+}
+
 export type Query = {
   __typename?: 'Query';
+  News: Array<News>;
+  Task: Array<Task>;
   Transaction: Transaction;
   UserInfo: UserInfo;
   Wallet: Wallet;
@@ -237,6 +264,32 @@ export type SignupUserInput = {
   username: Scalars['String']['input'];
 };
 
+export type Task = {
+  __typename?: 'Task';
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  points: Scalars['Int']['output'];
+  requiredAmount: Scalars['Int']['output'];
+  timing: TaskTiming;
+  title: Scalars['String']['output'];
+  type: TaskType;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum TaskTiming {
+  Daily = 'DAILY',
+  Monthly = 'MONTHLY',
+  Once = 'ONCE',
+  Weekly = 'WEEKLY'
+}
+
+export enum TaskType {
+  AchievingFinancialGoals = 'ACHIEVING_FINANCIAL_GOALS',
+  ReadingArticles = 'READING_ARTICLES',
+  SavingMoney = 'SAVING_MONEY'
+}
+
 export type Transaction = {
   __typename?: 'Transaction';
   amount: Scalars['Int']['output'];
@@ -274,6 +327,7 @@ export type UpdateUserInput = {
   /** Email of the user */
   email?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['String']['input'];
+  news_topics_followed: Array<NewsTopic>;
   /** Unhashed password of the user */
   password?: InputMaybe<Scalars['String']['input']>;
   /** Phone number of the user */
@@ -290,11 +344,24 @@ export type User = {
   experience: Scalars['Int']['output'];
   financial_goal: Array<FinancialGoal>;
   id: Scalars['String']['output'];
+  level: Scalars['Int']['output'];
+  news_topics_followed: Array<NewsTopic>;
   phone: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  user_completed_task: Array<UserCompletedTask>;
   username: Scalars['String']['output'];
   wallet: Wallet;
   wallet_id: Scalars['String']['output'];
+};
+
+export type UserCompletedTask = {
+  __typename?: 'UserCompletedTask';
+  achieved: Scalars['Int']['output'];
+  createdAt: Scalars['Int']['output'];
+  task: Task;
+  taskId: Scalars['String']['output'];
+  user: User;
+  userId: Scalars['String']['output'];
 };
 
 export type UserInfo = {
@@ -368,12 +435,38 @@ export type RemoveFinancialGoalMutationVariables = Exact<{
 
 export type RemoveFinancialGoalMutation = { __typename?: 'Mutation', removeFinancialGoal: { __typename?: 'FinancialGoal', id: string, name: string } };
 
+export type UserGamificationInfoQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type UserGamificationInfoQuery = { __typename?: 'Query', user: { __typename?: 'User', level: number, experience: number, user_completed_task: Array<{ __typename?: 'UserCompletedTask', taskId: string, achieved: number }> }, Task: Array<{ __typename?: 'Task', id: string, title: string, description: string, points: number, requiredAmount: number, createdAt: any, updatedAt: any, type: TaskType, timing: TaskTiming }> };
+
 export type SigninUserMutationVariables = Exact<{
   signinUserInput: SigninUserInput;
 }>;
 
 
 export type SigninUserMutation = { __typename?: 'Mutation', signinUser: { __typename?: 'Jwt', access_token: string } };
+
+export type UserNewsTopicFollowedQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type UserNewsTopicFollowedQuery = { __typename?: 'Query', user: { __typename?: 'User', news_topics_followed: Array<NewsTopic> } };
+
+export type UpdateUserNewsTopicFollowedMutationVariables = Exact<{
+  updateUserInput: UpdateUserInput;
+}>;
+
+
+export type UpdateUserNewsTopicFollowedMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'User', news_topics_followed: Array<NewsTopic> } };
+
+export type UserNewsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UserNewsQuery = { __typename?: 'Query', News: Array<{ __typename?: 'News', author?: string | null, title: string, description: string, url: string, urlToImage?: string | null, publishedAt: string, content: string, source: { __typename?: 'NewsSource', id?: string | null, name: string } }> };
 
 export type CreateOrUpdateUserInfoMutationVariables = Exact<{
   createOrUpdateUserInfoInput: CreateOrUpdateUserInfoInput;
@@ -397,6 +490,10 @@ export const RemoveTransactionDocument = {"kind":"Document","definitions":[{"kin
 export const UserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"User"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"birth_year"}},{"kind":"Field","name":{"kind":"Name","value":"experience"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"wallet"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"transactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"wallet_id"}},{"kind":"Field","name":{"kind":"Name","value":"financial_goal"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"wallet_id"}},{"kind":"Field","name":{"kind":"Name","value":"financial_goal"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"months_to_reach_goal"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<UserQuery, UserQueryVariables>;
 export const FinancialGoalsDataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FinancialGoalsData"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"birth_year"}},{"kind":"Field","name":{"kind":"Name","value":"experience"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"wallet"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"transactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"wallet_id"}},{"kind":"Field","name":{"kind":"Name","value":"financial_goal_id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"wallet_id"}},{"kind":"Field","name":{"kind":"Name","value":"financial_goal"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"months_to_reach_goal"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"transactions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"wallet_id"}},{"kind":"Field","name":{"kind":"Name","value":"financial_goal_id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]} as unknown as DocumentNode<FinancialGoalsDataQuery, FinancialGoalsDataQueryVariables>;
 export const RemoveFinancialGoalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveFinancialGoal"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"removeFinancialGoalId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeFinancialGoal"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"removeFinancialGoalId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<RemoveFinancialGoalMutation, RemoveFinancialGoalMutationVariables>;
+export const UserGamificationInfoDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserGamificationInfo"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"level"}},{"kind":"Field","name":{"kind":"Name","value":"experience"}},{"kind":"Field","name":{"kind":"Name","value":"user_completed_task"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"taskId"}},{"kind":"Field","name":{"kind":"Name","value":"achieved"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"Task"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"points"}},{"kind":"Field","name":{"kind":"Name","value":"requiredAmount"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"timing"}}]}}]}}]} as unknown as DocumentNode<UserGamificationInfoQuery, UserGamificationInfoQueryVariables>;
 export const SigninUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SigninUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"signinUserInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SigninUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signinUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"signinUserInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"signinUserInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"access_token"}}]}}]}}]} as unknown as DocumentNode<SigninUserMutation, SigninUserMutationVariables>;
+export const UserNewsTopicFollowedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserNewsTopicFollowed"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"news_topics_followed"}}]}}]}}]} as unknown as DocumentNode<UserNewsTopicFollowedQuery, UserNewsTopicFollowedQueryVariables>;
+export const UpdateUserNewsTopicFollowedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateUserNewsTopicFollowed"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"updateUserInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"updateUserInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"updateUserInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"news_topics_followed"}}]}}]}}]} as unknown as DocumentNode<UpdateUserNewsTopicFollowedMutation, UpdateUserNewsTopicFollowedMutationVariables>;
+export const UserNewsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserNews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"News"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"author"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"urlToImage"}},{"kind":"Field","name":{"kind":"Name","value":"publishedAt"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<UserNewsQuery, UserNewsQueryVariables>;
 export const CreateOrUpdateUserInfoDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateOrUpdateUserInfo"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateOrUpdateUserInfoInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createOrUpdateUserInfo"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateOrUpdateUserInfoMutation, CreateOrUpdateUserInfoMutationVariables>;
 export const SignupUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignupUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"signupUserInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SignupUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signupUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"signupUserInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"signupUserInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"access_token"}}]}}]}}]} as unknown as DocumentNode<SignupUserMutation, SignupUserMutationVariables>;
