@@ -114,18 +114,17 @@ export default function Gamification() {
   >(GET_VOUCHERS);
   const [claimReward] = useMutation(CLAIM_REWARD);
   const eligibleVouchers = useMemo(() => {
-    return (
-      (data && vouchersData) ?
-      vouchersData?.Voucher.filter(
-        (voucher) =>
-          voucher.levelRequired <= data.user.level &&
-          !vouchersData?.ClaimedVoucher.find(
-            (claimedVoucher) =>
-              claimedVoucher.userId === userId &&
-              claimedVoucher.voucherId === voucher.id,
-          ),
-      ) : []
-    );
+    return data && vouchersData
+      ? vouchersData?.Voucher.filter(
+          (voucher) =>
+            voucher.levelRequired <= data.user.level &&
+            !vouchersData?.ClaimedVoucher.find(
+              (claimedVoucher) =>
+                claimedVoucher.userId === userId &&
+                claimedVoucher.voucherId === voucher.id,
+            ),
+        )
+      : [];
   }, [vouchersData, data, userId]);
 
   return (
@@ -239,7 +238,7 @@ export default function Gamification() {
                 textDecorationSkipInk: "none",
               }}
             >
-              7
+              {eligibleVouchers.length}
             </span>{" "}
             new eligible rewards
           </p>
