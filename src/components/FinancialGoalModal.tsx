@@ -50,7 +50,7 @@ const FinancialGoalModal = ({
   walletId: string;
   onEdit: () => Promise<void>;
   onDelete: () => Promise<void>;
-  onTransactionAddSuccess: () => void;
+  onTransactionAddSuccess: (amount: number) => void;
   onTransactionDeleteSuccess: () => void;
 }) => {
   const [mutateFunction, { data, loading, error }] = useMutation<
@@ -111,7 +111,6 @@ const FinancialGoalModal = ({
                       removeTransactionId: transactionToDelete!,
                     },
                   });
-                  toast.success("Transaction deleted successfully");
                   onTransactionDeleteSuccess();
                   setIsConfirmDeleteTransactionModalOpen(false);
                 } catch (error) {
@@ -220,8 +219,7 @@ const FinancialGoalModal = ({
                     },
                   },
                 });
-                toast.success("Transaction added successfully");
-                onTransactionAddSuccess();
+                onTransactionAddSuccess(values.amount);
                 onClose();
               } catch (error) {
                 toast.error("Failed to add transaction");
@@ -335,7 +333,7 @@ const FinancialGoalModal = ({
                     className="ml-4 w-24 rounded-lg border border-secondary bg-tertiary p-3 text-sm font-bold text-primary transition-all hover:bg-secondary active:scale-95"
                     disabled={isSubmitting}
                   >
-                    Add
+                    Cash in
                   </button>
                 </div>
               </Form>

@@ -6,7 +6,7 @@ import { useState } from "react";
 import Modal from "react-responsive-modal";
 import { graphql } from "~/gql";
 import { useMutation, useQuery } from "@apollo/client";
-import { News, NewsTopic } from "~/gql/graphql";
+import { News, NewsTopic, TaskType } from "~/gql/graphql";
 
 const GET_USER_NEWS_TOPIC_FOLLOWED = graphql(`
   query UserNewsTopicFollowed($userId: String!) {
@@ -42,6 +42,14 @@ const GET_USER_NEWS = graphql(`
   }
 `);
 
+const REPORT_NEWS_CLICKED = graphql(`
+  mutation ReportNewsClicked($reportActionInput: ReportActionInput!) {
+    reportAction(reportActionInput: $reportActionInput) {
+      success
+    }
+  }
+`);
+
 export default function Market() {
   const { userId } = useAuth();
   const [selectedTopics, setSelectedTopics] = useState<NewsTopic[]>([]);
@@ -61,6 +69,7 @@ export default function Market() {
     error: newsError,
     refetch: refetchNews,
   } = useQuery<{ News: Array<News> }, Record<string, never>>(GET_USER_NEWS);
+  const [reportNewsClicked] = useMutation(REPORT_NEWS_CLICKED);
 
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
@@ -163,6 +172,15 @@ export default function Market() {
                   }?random=${i}`,
                 ...news,
               }}
+              onClick={async () => {
+                await reportNewsClicked({
+                  variables: {
+                    reportActionInput: {
+                      taskType: TaskType.ReadingArticles,
+                    },
+                  },
+                });
+              }}
             />
           ))}
         </div>
@@ -207,6 +225,7 @@ const MarketTopicCard = ({
 
 const NewsCard = ({
   news,
+  onClick,
 }: {
   news: {
     title: string;
@@ -214,9 +233,15 @@ const NewsCard = ({
     url: string;
     image: string;
   };
+  onClick?: () => void;
 }) => {
   return (
-    <Box className="flex w-full flex-col items-start justify-start p-3">
+    <Box
+      className="flex w-full flex-col items-start justify-start p-3"
+      onClick={() => {
+        onClick?.();
+      }}
+    >
       <a href={news.url} target="_blank" rel="noreferrer">
         <img
           src={news.image}

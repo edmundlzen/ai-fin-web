@@ -7,7 +7,7 @@ import {
 import { Icon } from "@iconify-icon/react";
 import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { FinancialGoal, User } from "~/gql/graphql";
+import { FinancialGoal, TaskType, User } from "~/gql/graphql";
 import { graphql } from "~/gql";
 import useAuth from "~/hooks/useAuth";
 import FinancialGoalModal from "~/components/FinancialGoalModal";
@@ -69,12 +69,21 @@ const REMOVE_FINANCIAL_GOAL = graphql(`
   }
 `);
 
+const REPORT_TRANSACTION_ADDED = graphql(`
+  mutation ReportTransactionAdded($reportActionInput: ReportActionInput!) {
+    reportAction(reportActionInput: $reportActionInput) {
+      success
+    }
+  }
+`);
+
 export default function FinancialGoals() {
   const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
-  const [activeFinancialGoalId, setActiveFinancialGoalId] =
-    useState<string | null>(null);
+  const [activeFinancialGoalId, setActiveFinancialGoalId] = useState<
+    string | null
+  >(null);
   const { data, loading, error, refetch } = useQuery<
     { user: User },
     { userId: string }
@@ -87,6 +96,7 @@ export default function FinancialGoals() {
     { removeFinancialGoal: { id: string; name: string } },
     { removeFinancialGoalId: string }
   >(REMOVE_FINANCIAL_GOAL);
+  const [reportTransactionAdded] = useMutation(REPORT_TRANSACTION_ADDED);
 
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
@@ -107,8 +117,18 @@ export default function FinancialGoals() {
           (goal) => goal.id === activeFinancialGoalId,
         )}
         walletId={data?.user.wallet.id ?? ""}
-        onTransactionAddSuccess={async () => {
+        onTransactionAddSuccess={async (amount) => {
+          toast.success(
+            `Transaction added successfully, you earned ${amount} XP points!`,
+          );
           await refetch();
+          await reportTransactionAdded({
+            variables: {
+              reportActionInput: {
+                taskType: TaskType.SavingMoney,
+              },
+            },
+          });
         }}
         onEdit={async () => {
           setTransactionModalOpen(false);
@@ -118,7 +138,7 @@ export default function FinancialGoals() {
           if (activeFinancialGoalId) {
             await removeFinancialGoal({
               variables: {
-                removeFinancialGoalId: activeFinancialGoalId
+                removeFinancialGoalId: activeFinancialGoalId,
               },
             });
             toast.success("Financial goal deleted successfully");
@@ -127,6 +147,7 @@ export default function FinancialGoals() {
           }
         }}
         onTransactionDeleteSuccess={async () => {
+          toast.success("Transaction deleted successfully");
           await refetch();
         }}
       />

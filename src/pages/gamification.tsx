@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs";
 import { graphql } from "~/gql";
 import useAuth from "~/hooks/useAuth";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import level_exp_scaling from "~/constants/level_exp_scaling";
-import { Task } from "~/gql/graphql";
+import { Task, TaskTiming, TaskType } from "~/gql/graphql";
+import { toast } from "react-toastify";
+import dayjs from "dayjs";
 
 const GET_USER_GAMIFICATION_INFO = graphql(`
   query UserGamificationInfo($userId: String!) {
@@ -15,6 +17,7 @@ const GET_USER_GAMIFICATION_INFO = graphql(`
       user_completed_task {
         taskId
         achieved
+        lastClaimed
       }
     }
 
@@ -32,6 +35,35 @@ const GET_USER_GAMIFICATION_INFO = graphql(`
   }
 `);
 
+const CLAIM_REWARD = graphql(`
+  mutation ClaimReward($taskId: String!) {
+    claimReward(taskId: $taskId) {
+      success
+    }
+  }
+`);
+
+const GET_VOUCHERS = graphql(`
+  query Voucher {
+    Voucher {
+      id
+      imageUrl
+      name
+      levelRequired
+      terms
+      createdAt
+      updatedAt
+    }
+    ClaimedVoucher {
+      userId
+      voucherId
+      createdAt
+      updatedAt
+      code
+    }
+  }
+`);
+
 export default function Gamification() {
   const circleRadius = 50;
   const totalSpace = 0.2;
@@ -40,12 +72,16 @@ export default function Gamification() {
   const [displayedPercentage, setDisplayedPercentage] = useState(0);
 
   const { userId } = useAuth();
-  const { data, loading, error } = useQuery<
+  const { data, loading, error, refetch } = useQuery<
     {
       user: {
         level: number;
         experience: number;
-        user_completed_task: { taskId: string; achieved: number }[];
+        user_completed_task: {
+          taskId: string;
+          achieved: number;
+          lastClaimed: string;
+        }[];
       };
       Task: Task[];
     },
@@ -53,6 +89,30 @@ export default function Gamification() {
   >(GET_USER_GAMIFICATION_INFO, {
     variables: { userId: userId ?? "" },
   });
+  const {
+    data: vouchersData,
+    loading: vouchersLoading,
+    error: vouchersError,
+  } = useQuery<
+    {
+      Voucher: {
+        id: string;
+        imageUrl: string;
+        name: string;
+        levelRequired: number;
+        terms: string;
+      }[];
+      ClaimedVoucher: {
+        userId: string;
+        voucherId: string;
+        createdAt: string;
+        updatedAt: string;
+        code: string;
+      }[];
+    },
+    Record<string, never>
+  >(GET_VOUCHERS);
+  const [claimReward] = useMutation(CLAIM_REWARD);
 
   return (
     <main className="flex min-h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
@@ -99,7 +159,52 @@ export default function Gamification() {
                 )?.achieved
               }
               requiredAmount={task.requiredAmount}
-              link="/survey"
+              link={
+                task.type === TaskType.AchievingFinancialGoals
+                  ? "/financial-goals"
+                  : task.type === TaskType.ReadingArticles
+                    ? "/market"
+                    : task.type === TaskType.SavingMoney
+                      ? "/financial-goals"
+                      : ""
+              }
+              onClaimReward={async () => {
+                await claimReward({ variables: { taskId: task.id } });
+                await refetch();
+                toast.success("Reward claimed successfully!");
+              }}
+              canClaim={(() => {
+                const completedTask = data?.user.user_completed_task.find(
+                  (userTask) => userTask.taskId === task.id,
+                );
+                if (!completedTask) {
+                  return true;
+                }
+                switch (task.timing) {
+                  case TaskTiming.Once:
+                    return !completedTask.lastClaimed;
+                  case TaskTiming.Daily:
+                    return (
+                      dayjs(completedTask.lastClaimed).isBefore(
+                        dayjs().subtract(1, "day"),
+                      ) || !completedTask.lastClaimed
+                    );
+                  case TaskTiming.Weekly:
+                    return (
+                      dayjs(completedTask.lastClaimed).isBefore(
+                        dayjs().subtract(1, "week"),
+                      ) || !completedTask.lastClaimed
+                    );
+                  case TaskTiming.Monthly:
+                    return (
+                      dayjs(completedTask.lastClaimed).isBefore(
+                        dayjs().subtract(1, "month"),
+                      ) || !completedTask.lastClaimed
+                    );
+                  default:
+                    return false;
+                }
+              })()}
             />
           ))}
         </div>
@@ -125,21 +230,22 @@ export default function Gamification() {
             new eligible rewards
           </p>
           <div className="my-2 flex w-full flex-col items-start justify-start gap-y-4">
-            <Reward
-              imageUrl="https://picsum.photos/150"
-              name="10% off on all items"
-              description="10% off on all items in the store."
-            />
-            <Reward
-              imageUrl="https://picsum.photos/150"
-              name="Free shipping"
-              description="Free shipping on all items in the store."
-            />
-            <Reward
-              imageUrl="https://picsum.photos/150"
-              name="RM10 off on all items"
-              description="RM10 off on all items in the store."
-            />
+            {vouchersData?.Voucher.filter(
+              (voucher) =>
+                voucher.levelRequired <= data!.user.level &&
+                !vouchersData?.ClaimedVoucher.find(
+                  (claimedVoucher) =>
+                    claimedVoucher.userId === userId &&
+                    claimedVoucher.voucherId === voucher.id,
+                ),
+            ).map((voucher) => (
+              <Reward
+                key={voucher.id}
+                imageUrl={voucher.imageUrl}
+                name={voucher.name}
+                description={voucher.terms}
+              />
+            ))}
           </div>
         </div>
       </Box>
@@ -153,6 +259,8 @@ function TaskMessage({
   link,
   currentProgress,
   requiredAmount,
+  onClaimReward,
+  canClaim,
 }: {
   title: string;
   message: string;
@@ -160,6 +268,8 @@ function TaskMessage({
   link: string;
   currentProgress?: number;
   requiredAmount: number;
+  onClaimReward: () => void;
+  canClaim: boolean;
 }) {
   return (
     <Box className="flex w-full flex-col items-start justify-start">
@@ -170,21 +280,48 @@ function TaskMessage({
           <p className="text-xs leading-tight">
             (Current progress:{" "}
             <span className="font-semibold">
-              {currentProgress ?? 0}/{requiredAmount}
+              {canClaim ? currentProgress ?? 0 : requiredAmount}/
+              {requiredAmount}
             </span>
             )
           </p>
         </div>
-        <button className="flex w-fit items-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary">
-          Open
-          <Icon icon="ph:link-bold" className="ml-1 text-primary" />
-        </button>
+        {currentProgress !== requiredAmount ? (
+          <a
+            className={
+              "btn w-24 font-semibold" +
+              " " +
+              (canClaim ? "btn-primary" : "btn-disabled")
+            }
+            href={link}
+            target="_blank"
+          >
+            {canClaim ? (
+              <>
+                Open <Icon icon="ph:link-bold" className="ml-1 text-primary" />
+              </>
+            ) : (
+              "Claimed"
+            )}
+          </a>
+        ) : (
+          <button
+            className={
+              "btn w-24 font-semibold " +
+              (canClaim ? "btn-success" : "btn-disabled")
+            }
+            onClick={() => onClaimReward()}
+            disabled={!canClaim}
+          >
+            {canClaim ? "Claim" : "Claimed"}
+          </button>
+        )}
       </div>
       <div className="relative mt-1 h-2 w-full overflow-hidden rounded-b-md bg-[#e1e0e9]">
         <div
           className="absolute left-0 top-0 h-2 rounded-r-sm bg-[#4277ff]"
           style={{
-            width: `${((currentProgress ?? 0) / requiredAmount) * 100}%`,
+            width: `${((canClaim ? currentProgress ?? 0 : requiredAmount) / requiredAmount) * 100}%`,
           }}
         />
       </div>

@@ -40,11 +40,30 @@ svg {
   stroke: #f5a623;
 }
 
+[data-theme="customtheme"] .btn {
+  transition: all 0.1s ease;
+}
+
+[data-theme="customtheme"] .btn:hover {
+  scale: 0.95;
+}
+
+[data-theme="customtheme"] .btn:active {
+  scale: 0.9;
+}
+
 [data-theme="customtheme"] .btn-primary {
   border-color: hsla(223, 100%, 79%, 1);
+  background-color: rgba(219, 229, 255, 0.3);
 }
 
 [data-theme="customtheme"] .btn-ghost,
 [data-theme="customtheme"] .btn-primary {
   color: hsla(236, 61%, 32%, 1);
+}
+
+[data-theme="customtheme"] .btn-success {
+  color: rgba(27, 105, 40, 100%);
+  border-color: rgba(200, 255, 209, 100%);
+  background-color: rgba(236, 255, 239, 100%);
 }
