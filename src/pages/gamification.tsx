@@ -8,6 +8,7 @@ import level_exp_scaling from "~/constants/level_exp_scaling";
 import { Task, TaskTiming, TaskType } from "~/gql/graphql";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import Modal from "react-responsive-modal";
 
 const GET_USER_GAMIFICATION_INFO = graphql(`
   query UserGamificationInfo($userId: String!) {
@@ -18,6 +19,14 @@ const GET_USER_GAMIFICATION_INFO = graphql(`
         taskId
         achieved
         lastClaimed
+      }
+
+      claimedVoucher {
+        userId
+        voucherId
+        createdAt
+        updatedAt
+        code
       }
     }
 
@@ -54,24 +63,24 @@ const GET_VOUCHERS = graphql(`
       createdAt
       updatedAt
     }
-    ClaimedVoucher {
-      userId
-      voucherId
-      createdAt
-      updatedAt
-      code
+  }
+`);
+
+const CLAIM_VOUCHER = graphql(`
+  mutation ClaimVoucher($voucherId: String!) {
+    claimVoucher(voucherId: $voucherId) {
+      success
     }
   }
 `);
 
 export default function Gamification() {
-  const circleRadius = 50;
-  const totalSpace = 0.2;
-  const circleCircumference = 2 * Math.PI * circleRadius;
-  const maxCircleCircumference = circleCircumference * 0.75;
-  const [displayedPercentage, setDisplayedPercentage] = useState(0);
+  const activeTab = useState<"new" | "claimed">("new");
 
   const { userId } = useAuth();
+  const [isShowVoucherCodeModalVisible, setIsShowVoucherCodeModalVisible] =
+    useState(false);
+  const [visibleVoucherCode, setVisibleVoucherCode] = useState("");
   const { data, loading, error, refetch } = useQuery<
     {
       user: {
@@ -81,6 +90,13 @@ export default function Gamification() {
           taskId: string;
           achieved: number;
           lastClaimed: string;
+        }[];
+        claimedVoucher: {
+          userId: string;
+          voucherId: string;
+          createdAt: string;
+          updatedAt: string;
+          code: string;
         }[];
       };
       Task: Task[];
@@ -102,23 +118,23 @@ export default function Gamification() {
         levelRequired: number;
         terms: string;
       }[];
-      ClaimedVoucher: {
-        userId: string;
-        voucherId: string;
-        createdAt: string;
-        updatedAt: string;
-        code: string;
-      }[];
     },
     Record<string, never>
   >(GET_VOUCHERS);
-  const [claimReward] = useMutation(CLAIM_REWARD);
+  const [claimReward] = useMutation<
+    { claimReward: { success: boolean } },
+    { taskId: string }
+  >(CLAIM_REWARD);
+  const [claimVoucher] = useMutation<
+    { claimVoucher: { success: boolean } },
+    { voucherId: string }
+  >(CLAIM_VOUCHER);
   const eligibleVouchers = useMemo(() => {
     return data && vouchersData
       ? vouchersData?.Voucher.filter(
           (voucher) =>
             voucher.levelRequired <= data.user.level &&
-            !vouchersData?.ClaimedVoucher.find(
+            !data.user.claimedVoucher.find(
               (claimedVoucher) =>
                 claimedVoucher.userId === userId &&
                 claimedVoucher.voucherId === voucher.id,
@@ -129,6 +145,40 @@ export default function Gamification() {
 
   return (
     <main className="flex min-h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
+      <Modal
+        open={isShowVoucherCodeModalVisible}
+        onClose={() => setIsShowVoucherCodeModalVisible(false)}
+        center
+        showCloseIcon={false}
+        classNames={{
+          modal: "rounded-lg w-10/12",
+        }}
+      >
+        <h2 className="text-xl font-semibold">Voucher Code</h2>
+        <div className="mt-3">
+          <p className="text-lg">Your voucher code is:</p>
+          <div className="mt-4 h-fit rounded-md border border-black">
+            <button
+              className="btn btn-ghost w-full font-semibold hover:bg-transparent"
+              onClick={() => {
+                void navigator.clipboard.writeText(visibleVoucherCode);
+                toast.success("Copied to clipboard!");
+              }}
+            >
+              <span className="mr-2 font-mono">{visibleVoucherCode}</span>
+              <Icon icon="akar-icons:copy" />
+            </button>
+          </div>
+          <div className="mt-6 flex items-center justify-end">
+            <button
+              className="btn btn-primary w-full font-semibold"
+              onClick={() => setIsShowVoucherCodeModalVisible(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </Modal>
       <div className="w-full">
         <h1 className="font-serif text-5xl">Rewards</h1>
       </div>
@@ -224,33 +274,95 @@ export default function Gamification() {
       </Box>
       <Box className="flex h-fit w-full flex-col items-start justify-start overflow-hidden">
         <div className="flex h-12 w-full shrink-0">
-          <button className="flex-1 border">New</button>
-          <button className="flex-1 border">Claimed</button>
-          <button className="flex-1 border">Used</button>
+          <button
+            className={
+              "flex-1 border transition-all hover:bg-tertiary hover:font-bold " +
+              (activeTab[0] === "new" ? "bg-tertiary font-bold" : "")
+            }
+            onClick={() => activeTab[1]("new")}
+          >
+            New
+          </button>
+          <button
+            className={
+              "flex-1 border transition-all hover:bg-tertiary hover:font-bold " +
+              (activeTab[0] === "claimed" ? "bg-tertiary font-bold" : "")
+            }
+            onClick={() => activeTab[1]("claimed")}
+          >
+            Claimed
+          </button>
         </div>
         <div className="h-fit w-full shrink-0 px-3 pt-2">
-          <p>
-            <span
-              className="underline underline-offset-0"
-              style={{
-                textDecorationThickness: "0.3em",
-                textDecorationColor: "rgba(148, 178, 255, 0.6)",
-                textDecorationSkipInk: "none",
-              }}
-            >
-              {eligibleVouchers.length}
-            </span>{" "}
-            new eligible rewards
-          </p>
+          {activeTab[0] === "new" ? (
+            <p>
+              <span
+                className="underline underline-offset-0"
+                style={{
+                  textDecorationThickness: "0.3em",
+                  textDecorationColor: "rgba(148, 178, 255, 0.6)",
+                  textDecorationSkipInk: "none",
+                }}
+              >
+                {eligibleVouchers.length}
+              </span>{" "}
+              new eligible rewards
+            </p>
+          ) : (
+            <p>
+              <span
+                className="underline underline-offset-0"
+                style={{
+                  textDecorationThickness: "0.3em",
+                  textDecorationColor: "rgba(148, 178, 255, 0.6)",
+                  textDecorationSkipInk: "none",
+                }}
+              >
+                {
+                  data?.user.claimedVoucher.filter(
+                    (claimedVoucher) => claimedVoucher.userId === userId,
+                  ).length
+                }
+              </span>{" "}
+              claimed rewards
+            </p>
+          )}
           <div className="my-2 flex w-full flex-col items-start justify-start gap-y-4">
-            {eligibleVouchers.map((voucher) => (
-              <Reward
-                key={voucher.id}
-                imageUrl={voucher.imageUrl}
-                name={voucher.name}
-                description={voucher.terms}
-              />
-            ))}
+            {activeTab[0] === "new"
+              ? eligibleVouchers.map((voucher) => (
+                  <Reward
+                    key={voucher.id}
+                    imageUrl={voucher.imageUrl}
+                    name={voucher.name}
+                    description={voucher.terms}
+                    onClaim={async () => {
+                      await claimVoucher({
+                        variables: { voucherId: voucher.id },
+                      });
+                      toast.success("Reward claimed successfully!");
+                    }}
+                  />
+                ))
+              : data?.user.claimedVoucher
+                  .filter((claimedVoucher) => claimedVoucher.userId === userId)
+                  .map((claimedVoucher) => {
+                    const voucher = vouchersData?.Voucher.find(
+                      (voucher) => voucher.id === claimedVoucher.voucherId,
+                    );
+                    return (
+                      <Reward
+                        key={claimedVoucher.voucherId}
+                        imageUrl={voucher?.imageUrl ?? ""}
+                        name={voucher?.name ?? ""}
+                        description={voucher?.terms ?? ""}
+                        code={claimedVoucher.code}
+                        onCheck={() => {
+                          setVisibleVoucherCode(claimedVoucher.code);
+                          setIsShowVoucherCodeModalVisible(true);
+                        }}
+                      />
+                    );
+                  })}
           </div>
         </div>
       </Box>
@@ -338,10 +450,16 @@ function Reward({
   imageUrl,
   name,
   description,
+  code,
+  onClaim,
+  onCheck,
 }: {
   imageUrl: string;
   name: string;
   description: string;
+  code?: string;
+  onClaim?: () => void;
+  onCheck?: () => void;
 }) {
   return (
     <Box className="flex w-full flex-col items-start justify-start p-3">
@@ -350,8 +468,11 @@ function Reward({
         <h3 className="ml-3 text-base font-semibold leading-tight">{name}</h3>
       </div>
       <p className="mt-2">{description}</p>
-      <button className="mt-4 flex w-full items-center justify-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary">
-        Claim
+      <button
+        className="btn btn-primary mt-4 w-24 w-full font-semibold"
+        onClick={code ? onCheck : onClaim}
+      >
+        {code ? "Check" : "Claim"}
       </button>
     </Box>
   );
