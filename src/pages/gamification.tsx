@@ -1,5 +1,5 @@
 import { Box, Emoji } from "~/components";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Icon } from "@iconify-icon/react/dist/iconify.mjs";
 import { graphql } from "~/gql";
 import useAuth from "~/hooks/useAuth";
@@ -113,6 +113,20 @@ export default function Gamification() {
     Record<string, never>
   >(GET_VOUCHERS);
   const [claimReward] = useMutation(CLAIM_REWARD);
+  const eligibleVouchers = useMemo(() => {
+    return (
+      (data && vouchersData) ?
+      vouchersData?.Voucher.filter(
+        (voucher) =>
+          voucher.levelRequired <= data.user.level &&
+          !vouchersData?.ClaimedVoucher.find(
+            (claimedVoucher) =>
+              claimedVoucher.userId === userId &&
+              claimedVoucher.voucherId === voucher.id,
+          ),
+      ) : []
+    );
+  }, [vouchersData, data, userId]);
 
   return (
     <main className="flex min-h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
@@ -230,15 +244,7 @@ export default function Gamification() {
             new eligible rewards
           </p>
           <div className="my-2 flex w-full flex-col items-start justify-start gap-y-4">
-            {vouchersData?.Voucher.filter(
-              (voucher) =>
-                voucher.levelRequired <= data!.user.level &&
-                !vouchersData?.ClaimedVoucher.find(
-                  (claimedVoucher) =>
-                    claimedVoucher.userId === userId &&
-                    claimedVoucher.voucherId === voucher.id,
-                ),
-            ).map((voucher) => (
+            {eligibleVouchers.map((voucher) => (
               <Reward
                 key={voucher.id}
                 imageUrl={voucher.imageUrl}
