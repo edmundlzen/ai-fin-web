@@ -25,7 +25,7 @@ const UPDATE_USER_NEWS_TOPIC_FOLLOWED = graphql(`
   }
 `);
 
-const GET_USER_NEWS = graphql(`
+export const GET_USER_NEWS = graphql(`
   query UserNews {
     News {
       source {
@@ -43,7 +43,7 @@ const GET_USER_NEWS = graphql(`
   }
 `);
 
-const REPORT_NEWS_CLICKED = graphql(`
+export const REPORT_NEWS_CLICKED = graphql(`
   mutation ReportNewsClicked($reportActionInput: ReportActionInput!) {
     reportAction(reportActionInput: $reportActionInput) {
       success
@@ -146,76 +146,141 @@ export default function Market() {
         </div>
       </Modal>
       <TopBar title="Market" />
-      <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center gap-y-4 p-3 pt-0">
-        <div className="flex w-full items-center justify-between">
-          <h3 className="text-xl font-semibold tracking-tight">
-            Recommended for you
-          </h3>
-          <button
-            className="btn btn-ghost text-sm font-semibold"
-            onClick={() => {
-              setSelectedTopics(data?.user.news_topics_followed ?? []);
-              setIsEditTopicsModalOpen(true);
-            }}
-          >
-            Edit
-          </button>
-        </div>
-        <div className="grid min-h-96 w-full grid-cols-1 gap-4">
-          {loading || newsLoading ? (
-            <h3 className="mb-auto mt-auto text-center text-xl text-secondary-text">
-              Loading...
-            </h3>
-          ) : error ?? newsError ? (
-            <h3 className="mb-auto mt-auto text-center text-xl text-secondary-text">
-              Error fetching data
-            </h3>
-          ) : data?.user.news_topics_followed.length === 0 ? (
-            <div className="flex flex-col items-center justify-center">
-              <h3 className="mt-auto px-4 text-center text-xl text-secondary-text">
-                No topics selected.
-                <br />
-                Select some topics to get started
-              </h3>
-              <button
-                className="btn btn-primary mb-auto mt-2 max-w-48"
-                onClick={() => {
-                  setSelectedTopics(data?.user.news_topics_followed ?? []);
-                  setIsEditTopicsModalOpen(true);
-                }}
-              >
-                Select Topics
-              </button>
-            </div>
-          ) : (
-            newsData?.News.map((news, i) => (
-              <NewsCard
-                key={news.title}
-                news={{
-                  image:
-                    news.urlToImage ??
-                    `https://loremflickr.com/200/300/finance,${
-                      news.title.split(" ")[0]
-                    }?random=${i}`,
-                  ...news,
-                }}
-                onClick={async () => {
-                  await reportNewsClicked({
-                    variables: {
-                      reportActionInput: {
-                        taskType: TaskType.ReadingArticles,
-                      },
-                    },
-                  });
-                }}
-              />
-            ))
-          )}
-        </div>
-      </Box>
+      <NewsBox
+        onClickEditNews={() => {
+          setSelectedTopics(data?.user.news_topics_followed ?? []);
+          setIsEditTopicsModalOpen(true);
+        }}
+        onClickNews={async () => {
+          await reportNewsClicked({
+            variables: {
+              reportActionInput: {
+                taskType: TaskType.ReadingArticles,
+              },
+            },
+          });
+        }}
+        loading={newsLoading}
+        error={newsError !== undefined}
+        news_topics_followed={data?.user.news_topics_followed ?? []}
+        newsData={newsData}
+      />
     </main>
   );
 }
+
+export const NewsBox = ({
+  onClickEditNews,
+  onClickNews,
+  loading,
+  error,
+  news_topics_followed,
+  newsData,
+  isMiniView,
+  limit,
+}: {
+  onClickEditNews?: () => void;
+  onClickNews: () => void;
+  loading: boolean;
+  error: boolean;
+  news_topics_followed: NewsTopic[];
+  newsData: { News: Array<News> } | undefined;
+  isMiniView?: boolean;
+  limit?: number;
+}) => {
+  return (
+    <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center gap-y-4 p-3 pt-0">
+      <div className="flex w-full items-center justify-between">
+        <h3 className="mt-2 text-xl font-semibold tracking-tight">
+          Recommended for you
+        </h3>
+        <button
+          className={
+            "btn btn-ghost text-sm font-semibold" +
+            (isMiniView ? " hidden" : "")
+          }
+          onClick={onClickEditNews}
+        >
+          Edit
+        </button>
+      </div>
+      <div
+        className={
+          "grid w-full grid-cols-1 gap-4" + (isMiniView ? "" : " min-h-96")
+        }
+      >
+        {loading ? (
+          <h3 className="mb-auto mt-auto text-center text-xl text-secondary-text">
+            Loading...
+          </h3>
+        ) : error ? (
+          <h3 className="mb-auto mt-auto text-center text-xl text-secondary-text">
+            Error fetching data
+          </h3>
+        ) : news_topics_followed.length === 0 ? (
+          <div className="flex flex-col items-center justify-center">
+            <h3 className="mt-auto px-4 text-center text-xl text-secondary-text">
+              No topics selected.
+              <br />
+              Select some topics to get started
+            </h3>
+            <button
+              className="btn btn-primary mb-auto mt-2 max-w-48"
+              onClick={onClickEditNews}
+            >
+              Select Topics
+            </button>
+          </div>
+        ) : (
+          newsData?.News.slice(0, limit ?? newsData.News.length).map(
+            (news, i) => {
+              if (!isMiniView)
+                return (
+                  <NewsCard
+                    key={news.title}
+                    news={{
+                      image:
+                        news.urlToImage ??
+                        `https://loremflickr.com/200/300/finance,${
+                          news.title.split(" ")[0]
+                        }?random=${i}`,
+                      ...news,
+                    }}
+                    onClick={onClickNews}
+                  />
+                );
+              return (
+                <a
+                  key={news.title}
+                  href={news.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={onClickNews}
+                >
+                  <Box className="grid h-24 w-full grid-cols-3 gap-2 overflow-hidden hover:cursor-pointer">
+                    <img
+                      src={
+                        news.urlToImage ??
+                        "https://loremflickr.com/200/300/finance"
+                      }
+                      alt={news.title}
+                      className="col-span-1 h-full w-full object-cover"
+                    />
+                    <div className="col-span-2 flex items-center justify-start">
+                      <p className="line-clamp-3 w-full text-pretty">
+                        {news.title}
+                      </p>
+                    </div>
+                  </Box>
+                </a>
+              );
+            },
+          )
+        )}
+      </div>
+    </Box>
+  );
+};
 
 const MarketTopicCard = ({
   topic,

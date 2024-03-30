@@ -6,12 +6,13 @@ import FinancialGoalCard from "~/components/FinancialGoalCard";
 import useAuth from "~/hooks/useAuth";
 import { graphql } from "~/gql";
 import { useMutation, useQuery } from "@apollo/client";
-import { NameData, News, User } from "~/gql/graphql";
+import { NameData, News, TaskType, User } from "~/gql/graphql";
 import dayjs from "dayjs";
 import TopBar from "~/components/TopBar";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { useDrawingArea } from "@mui/x-charts/hooks";
 import { styled } from "@mui/material";
+import { GET_USER_NEWS, NewsBox, REPORT_NEWS_CLICKED } from "./market";
 
 type SavingsData = {
   month: string;
@@ -107,24 +108,7 @@ const GET_USER_DATA = graphql(`
       user_info {
         createdAt
       }
-    }
-  }
-`);
-
-const GET_USER_NEWS = graphql(`
-  query UserNewsIndex {
-    News {
-      source {
-        id
-        name
-      }
-      author
-      title
-      description
-      url
-      urlToImage
-      publishedAt
-      content
+      news_topics_followed
     }
   }
 `);
@@ -171,6 +155,7 @@ export default function Dashboard() {
   } = useQuery<{ News: Array<News> }, Record<string, never>>(GET_USER_NEWS, {
     notifyOnNetworkStatusChange: true,
   });
+  const [reportNewsClicked] = useMutation(REPORT_NEWS_CLICKED);
 
   useEffect(() => {
     if (!data) return;
@@ -379,33 +364,91 @@ export default function Dashboard() {
           </div>
         </div>
       </Box>
-      <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
-        <h2 className="w-full text-2xl font-bold tracking-tight">
-          Recommended for you
-        </h2>
-        <Box className="mt-2 grid h-24 w-full grid-cols-3 gap-2 overflow-hidden">
-          <img
-            src="https://picsum.photos/500/300"
-            alt="Random image"
-            className="col-span-1 h-full w-full object-cover"
-          />
-          <div className="col-span-2 flex items-center justify-start">
-            <p className="line-clamp-3 w-full text-pretty">
-              Lorem ipsum dolor sit consectetur adipiscing elit. Nulla nec
-              fringilla odio. Nulla facilisi. Nulla facilisi. Nulla facilisi.
-            </p>
-          </div>
-        </Box>
-      </Box>
+      <NewsBox
+        onClickNews={async () => {
+          await reportNewsClicked({
+            variables: {
+              reportActionInput: {
+                taskType: TaskType.ReadingArticles,
+              },
+            },
+          });
+        }}
+        onClickEditNews={() => {
+          window.location.href = "/market";
+        }}
+        loading={newsLoading}
+        error={newsError !== undefined}
+        news_topics_followed={data?.user.news_topics_followed ?? []}
+        newsData={newsData}
+        isMiniView
+        limit={3}
+      />
       <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
         <h2 className="w-full text-2xl font-bold tracking-tight">
           Total savings
         </h2>
         <div className="flex w-full items-baseline">
-          <h3 className="mt-1 text-4xl font-bold">RM 58,999</h3>
+          <h3 className="mt-1 text-4xl font-bold">
+            RM{" "}
+            {data.user.wallet.transactions
+              .filter(
+                (transaction) =>
+                  dayjs().diff(dayjs(transaction.createdAt as string), "day") <
+                  30,
+              )
+              .reduce((acc, curr) => acc + curr.amount, 0) +
+              data.user.wallet.transactions
+                .filter(
+                  (transaction) =>
+                    dayjs().diff(
+                      dayjs(transaction.createdAt as string),
+                      "day",
+                    ) < 60 &&
+                    dayjs().diff(
+                      dayjs(transaction.createdAt as string),
+                      "day",
+                    ) > 30,
+                )
+                .reduce((acc, curr) => acc + curr.amount, 0)}
+          </h3>
           <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
             <Icon icon="ant-design:rise-outlined" className="text-positive" />
-            25%
+            {(data.user.wallet.transactions
+              .filter(
+                (transaction) =>
+                  dayjs().diff(dayjs(transaction.createdAt as string), "day") <
+                    60 &&
+                  dayjs().diff(dayjs(transaction.createdAt as string), "day") >
+                    30,
+              )
+              .reduce((acc, curr) => acc + curr.amount, 0) === 0
+              ? 100
+              : (data.user.wallet.transactions
+                  .filter(
+                    (transaction) =>
+                      dayjs().diff(
+                        dayjs(transaction.createdAt as string),
+                        "day",
+                      ) < 30,
+                  )
+                  .reduce((acc, curr) => acc + curr.amount, 0) /
+                  data.user.wallet.transactions
+                    .filter(
+                      (transaction) =>
+                        dayjs().diff(
+                          dayjs(transaction.createdAt as string),
+                          "day",
+                        ) < 60 &&
+                        dayjs().diff(
+                          dayjs(transaction.createdAt as string),
+                          "day",
+                        ) > 30,
+                    )
+                    .reduce((acc, curr) => acc + curr.amount, 0)) *
+                100
+            ).toFixed(0)}
+            %
           </div>
           <div className="ml-2 text-xs text-tertiary-text">from last month</div>
         </div>
@@ -416,7 +459,42 @@ export default function Dashboard() {
               data: [
                 {
                   label: "Savings",
-                  data: TEST_SAVINGS_DATA,
+                  data: [
+                    ...data.user.wallet.transactions
+                      .filter(
+                        (transaction) =>
+                          dayjs().diff(
+                            dayjs(transaction.createdAt as string),
+                            "year",
+                          ) < 1,
+                      )
+                      .reduce(
+                        (
+                          acc: {
+                            month: string;
+                            amount: number;
+                          }[],
+                          curr: {
+                            amount: number;
+                            createdAt: string;
+                          },
+                        ) => {
+                          const month = dayjs(curr.createdAt).format("MMM");
+                          if (
+                            acc.find((item) => item.month === month) !==
+                            undefined
+                          ) {
+                            return acc.map((item) =>
+                              item.month === month
+                                ? { month, amount: item.amount + curr.amount }
+                                : item,
+                            );
+                          }
+                          return [...acc, { month, amount: curr.amount }];
+                        },
+                        [],
+                      ),
+                  ],
                 },
               ],
               primaryAxis: {
