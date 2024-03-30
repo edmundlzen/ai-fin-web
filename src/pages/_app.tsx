@@ -17,6 +17,7 @@ import {
 } from "react-pro-sidebar";
 import useSidebarStore from "~/stores/sidebarStore";
 import useAuth from "~/hooks/useAuth";
+import { AccountType } from "~/gql/graphql";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const sidebarIsOpen = useSidebarStore((state) => state.isOpen);
@@ -28,11 +29,17 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     // Logic to retrieve the JWT token from local storage or any other source
     const token = localStorage.getItem("access_token");
     // Logic to decode the JWT token and extract the user ID
-    const decodedToken = token ? jwtDecode(token) : {};
-    const { sub, exp } = decodedToken;
+    const decodedToken = token ? jwtDecode<
+          { sub: string; exp: number; type: AccountType }
+    >(token) : null;
+    if (!decodedToken) {
+      localStorage.removeItem("access_token");
+      window.location.href = "/login";
+      return;
+    }
+    const { sub, exp, type } = decodedToken;
 
-    console.log(sub, exp);
-    if (!token || (exp ?? 0) > Date.now()) {
+    if ((exp ?? 0) > Date.now()) {
       localStorage.removeItem("access_token");
 
       // Redirect the user to the login page
@@ -41,6 +48,16 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         window.location.pathname !== "/signup"
       ) {
         window.location.href = "/login";
+      }
+    }
+
+    if (window.location.pathname === "admin") {
+      if (type !== AccountType.Admin) {
+        window.location.href = "/";
+      }
+    } else {
+      if (type === AccountType.Admin) {
+        window.location.href = "/admin";
       }
     }
   }, []);
