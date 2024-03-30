@@ -79,7 +79,7 @@ export default function Quiz() {
             });
             toast.success("Quiz submitted successfully, redirecting...");
             setTimeout(() => {
-              window.location.href = "/dashboard";
+              window.location.href = "/";
             }, 1000);
           } catch (e) {
             toast.error(

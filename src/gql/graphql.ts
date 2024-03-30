@@ -18,6 +18,11 @@ export type Scalars = {
   DateTime: { input: any; output: any; }
 };
 
+export enum AccountType {
+  Admin = 'ADMIN',
+  User = 'USER'
+}
+
 export enum AnnualIncome {
   From10KTo25K = 'From10KTo25K',
   From25KTo50K = 'From25KTo50K',
@@ -376,6 +381,7 @@ export type UpdateUserInput = {
 
 export type User = {
   __typename?: 'User';
+  account_type: AccountType;
   birth_year: Scalars['Float']['output'];
   claimedVoucher: Array<ClaimedVoucher>;
   createdAt: Scalars['DateTime']['output'];

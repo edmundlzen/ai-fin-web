@@ -53,7 +53,7 @@ export default function Login() {
               }
               toast.success("Logged in successfully, redirecting...");
               setTimeout(() => {
-                window.location.href = "/dashboard";
+                window.location.href = "/";
               }, 1000);
             } catch (error) {
               const errorMessage = (error as { message: string }).message ?? "";
