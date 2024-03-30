@@ -18,6 +18,7 @@ import {
 import useSidebarStore from "~/stores/sidebarStore";
 import useAuth from "~/hooks/useAuth";
 import { AccountType } from "~/gql/graphql";
+import { AppCacheProvider } from "@mui/material-nextjs/v13-pagesRouter";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const sidebarIsOpen = useSidebarStore((state) => state.isOpen);
@@ -78,7 +79,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   }, []);
 
   return (
-    <>
+    <AppCacheProvider {...pageProps}>
       <Head>
         <title>AI Financial Planner</title>
         <meta name="description" content="AI Financial Planner" />
@@ -164,7 +165,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         <Component {...pageProps} />
         <ToastContainer />
       </ApolloProvider>
-    </>
+    </AppCacheProvider>
   );
 };
 

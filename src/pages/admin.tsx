@@ -2,104 +2,70 @@ import { CrudFinancialGoalModal, Box, Emoji } from "~/components";
 import { Icon } from "@iconify-icon/react";
 import { useEffect, useState } from "react";
 import Chart from "~/components/Chart";
-import FinancialGoalCard from "~/components/FinancialGoalCard";
+import { PieChart } from "@mui/x-charts/PieChart";
+import { useDrawingArea } from "@mui/x-charts/hooks";
 import useAuth from "~/hooks/useAuth";
 import { graphql } from "~/gql";
 import { useMutation, useQuery } from "@apollo/client";
-import { User } from "~/gql/graphql";
+import {
+  AdminData,
+  AnnualIncome,
+  DateData,
+  NameData,
+  User,
+} from "~/gql/graphql";
 import dayjs from "dayjs";
 import TopBar from "~/components/TopBar";
+import { styled } from "@mui/material";
+
+const AnnualIncomeToAverage: Record<AnnualIncome, number> = {
+  LessThan10K: 5000,
+  From10KTo25K: 17500,
+  From25KTo50K: 37500,
+  From50KTo100K: 75000,
+  From100KTo200K: 150000,
+  MoreThan200K: 250000,
+};
 
 type SavingsData = {
   month: string;
   amount: number;
 };
 
-const TEST_SAVINGS_DATA = [
-  {
-    month: "Jan",
-    amount: 1000,
-  },
-  {
-    month: "Feb",
-    amount: 2000,
-  },
-  {
-    month: "Mar",
-    amount: 7000,
-  },
-  {
-    month: "Apr",
-    amount: 2000,
-  },
-  {
-    month: "May",
-    amount: 9000,
-  },
-  {
-    month: "Jun",
-    amount: 2000,
-  },
-  {
-    month: "Jul",
-    amount: 3000,
-  },
-  {
-    month: "Aug",
-    amount: 1000,
-  },
-  {
-    month: "Sep",
-    amount: 9000,
-  },
-  {
-    month: "Oct",
-    amount: 2000,
-  },
-  {
-    month: "Nov",
-    amount: 11000,
-  },
-  {
-    month: "Dec",
-    amount: 12000,
-  },
-] as SavingsData[];
-
-const GET_USER_DATA = graphql(`
-  query AdminUser($userId: String!) {
-    user(id: $userId) {
-      id
-      email
-      username
-      phone
-      birth_year
-      experience
-      createdAt
-      updatedAt
-      wallet {
-        id
-        createdAt
-        updatedAt
-        transactions {
-          id
-          amount
-          wallet_id
-          financial_goal {
-            name
-          }
-        }
+const GET_ADMIN_DATA = graphql(`
+  query AdminData {
+    adminData {
+      totalUsersSavings {
+        month
+        year
+        value
       }
-      wallet_id
-      financial_goal {
-        id
-        userId
-        emoji
+      totalActiveUsers {
+        month
+        year
+        value
+      }
+      totalUsers {
+        month
+        year
+        value
+      }
+      newUsers {
+        month
+        year
+        value
+      }
+      userAnnualIncomeStats {
         name
-        amount
-        months_to_reach_goal
-        createdAt
-        updatedAt
+        value
+      }
+      userLiabilitiesStats {
+        name
+        value
+      }
+      userMonthlyExpenseStats {
+        name
+        value
       }
     }
   }
@@ -108,14 +74,9 @@ const GET_USER_DATA = graphql(`
 export default function Admin() {
   const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
-  const { data, loading, error, refetch } = useQuery<
-    { user: User },
-    { userId: string }
-  >(GET_USER_DATA, {
-    variables: {
-      userId: userId ?? "",
-    },
-  });
+  const { data, loading, error, refetch } = useQuery<{ adminData: AdminData }>(
+    GET_ADMIN_DATA,
+  );
 
   useEffect(() => {
     console.log(data);
@@ -135,157 +96,209 @@ export default function Admin() {
         }}
       />
       <TopBar title="Admin" />
-      <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
-        <h2 className="w-full text-2xl font-bold tracking-tight">
-          Total savings by users
-        </h2>
-        <div className="flex w-full items-baseline">
-          <h3 className="mt-1 text-4xl font-bold">RM 58,999</h3>
-          <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
-            <Icon icon="ant-design:rise-outlined" className="text-positive" />
-            25%
-          </div>
-          <div className="ml-2 text-xs text-tertiary-text">from last month</div>
-        </div>
-        <div className="mt-2 h-48 w-full">
-          <Chart
-            className="flex items-center justify-center"
-            options={{
-              data: [
-                {
-                  label: "Savings",
-                  data: TEST_SAVINGS_DATA,
-                },
-              ],
-              primaryAxis: {
-                getValue: (datum) => (datum as SavingsData).month,
-                scaleType: "band",
-              },
-              secondaryAxes: [
-                {
-                  getValue: (datum) => (datum as SavingsData).amount,
-                  scaleType: "linear",
-                  elementType: "line",
-                },
-              ],
-            }}
-          />
-        </div>
-      </Box>
-      <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
-        <div className="flex w-full items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">Financial Goals</h2>
-          <button
-            className="flex w-fit items-center rounded-lg p-1 pr-2 text-sm font-bold transition-all hover:bg-slate-100 active:scale-95"
-            onClick={() => {
-              setGoalModalOpen(true);
-            }}
-          >
-            <Icon icon="bi:plus" className="text-2xl" />
-            Add a new goal
-          </button>
-        </div>
-        <div className="mt-2 flex w-full flex-col items-start justify-center gap-y-4">
-          {data?.user.financial_goal && data.user.financial_goal.length > 0 ? (
-            data.user.financial_goal.map((goal) => (
-              <FinancialGoalCard
-                key={goal.id}
-                financialGoal={goal}
-                wallet={data.user.wallet}
-              />
-            ))
-          ) : (
-            <div className="flex w-full items-center justify-center gap-x-2">
-              <Emoji name="direct-hit" />
-              <p className="text-pretty">No financial goals set yet</p>
-            </div>
-          )}
-        </div>
-      </Box>
-      <Box className="flex h-fit w-full flex-col items-center p-3">
-        <h2 className="w-full text-xl font-bold tracking-tight">
-          Total saved this month
-        </h2>
-        <div className="flex w-full items-baseline">
-          <h3 className="mt-1 text-4xl font-bold">
-            RM{" "}
-            {data?.user.wallet.transactions
-              .filter(
-                (transaction) =>
-                  dayjs().diff(dayjs(transaction.createdAt as string), "day") <
-                  30,
-              )
-              .reduce((acc, curr) => acc + curr.amount, 0)
-              .toLocaleString("en-MY")}
-          </h3>
-          <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
-            <Icon icon="ant-design:rise-outlined" className="text-positive" />
-            {data.user.wallet.transactions
-              .filter(
-                (transaction) =>
-                  dayjs().diff(dayjs(transaction.createdAt as string), "day") <
-                  30,
-              )
-              .reduce((acc, curr) => acc + curr.amount, 0) /
-              data.user.wallet.transactions
-                .filter(
-                  (transaction) =>
-                    dayjs().diff(
-                      dayjs(transaction.createdAt as string),
-                      "day",
-                    ) < 30,
-                )
-                .reduce((acc, curr) => acc + curr.amount, 0) || 0}{" "}
-            %
-          </div>
-          <div className="ml-2 text-xs text-tertiary-text">from last month</div>
-        </div>
-        <div className="mt-2">
-          <CircleProgressBar
-            percentage={0}
-            amount={
-              data.user.financial_goal
-                .filter(
-                  (goal) =>
-                    dayjs().diff(dayjs(goal.createdAt as string), "day") <
-                    goal.months_to_reach_goal * 30,
-                )
-                .reduce((acc, curr) => acc + curr.amount, 0) || 0
-            }
-          />
-        </div>
-        <div className="mt-4 flex items-center gap-x-4">
-          <div className="flex items-center text-sm text-tertiary-text">
-            <div className="mr-1 h-4 w-4 rounded-md bg-[#3e48d0]" />
-            Current saved
-            <span className="ml-2 font-bold text-tertiary-text">67%</span>
-          </div>
-          <div className="flex items-center text-sm text-tertiary-text">
-            <div className="mr-1 h-4 w-4 rounded-md bg-[#d9d9d9]" />
-            Remaining
-            <span className="ml-2 font-bold text-tertiary-text">33%</span>
-          </div>
-        </div>
-      </Box>
-      <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
-        <h2 className="w-full text-2xl font-bold tracking-tight">
-          Recommended for you
-        </h2>
-        <Box className="mt-2 grid h-24 w-full grid-cols-3 gap-2 overflow-hidden">
-          <img
-            src="https://picsum.photos/500/300"
-            alt="Random image"
-            className="col-span-1 h-full w-full object-cover"
-          />
-          <div className="col-span-2 flex items-center justify-start">
-            <p className="line-clamp-3 w-full text-pretty">
-              Lorem ipsum dolor sit consectetur adipiscing elit. Nulla nec
-              fringilla odio. Nulla facilisi. Nulla facilisi. Nulla facilisi.
-            </p>
-          </div>
-        </Box>
-      </Box>
+      <DateDataChartView
+        name="Total savings by users"
+        prefix="RM"
+        data={(
+          JSON.parse(
+            JSON.stringify(data.adminData.totalUsersSavings),
+          ) as DateData[]
+        ).reverse()}
+      />
+      <DateDataChartView
+        name="Total active users"
+        data={(
+          JSON.parse(
+            JSON.stringify(data.adminData.totalActiveUsers),
+          ) as DateData[]
+        ).reverse()}
+      />
+      <DateDataChartView
+        name="Total new users"
+        data={(
+          JSON.parse(JSON.stringify(data.adminData.totalUsers)) as DateData[]
+        ).reverse()}
+      />
+      <NameDataPieChartView
+        name="User Annual Income Stats"
+        data={data.adminData.userAnnualIncomeStats}
+        average={
+          +(
+            data.adminData.userAnnualIncomeStats.reduce(
+              (acc, cur) =>
+                acc +
+                AnnualIncomeToAverage[
+                  cur.name as keyof typeof AnnualIncomeToAverage
+                ] *
+                  cur.value,
+              0,
+            ) /
+            data.adminData.userAnnualIncomeStats.reduce(
+              (acc, cur) => acc + cur.value,
+              0,
+            ) /
+            1000
+          ).toFixed(1)
+        }
+      />
     </main>
+  );
+}
+
+function DateDataChartView({
+  name,
+  data,
+  prefix,
+}: {
+  name: string;
+  data: DateData[];
+  prefix?: string;
+}) {
+  return (
+    <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
+      <h2 className="w-full text-2xl font-bold tracking-tight">{name}</h2>
+      <div className="flex w-full items-baseline">
+        <h3 className="mt-1 text-4xl font-bold">
+          {prefix} {data[data.length - 1]!.value.toLocaleString("en-MY")}
+        </h3>
+        <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
+          <Icon icon="ant-design:rise-outlined" className="text-positive" />
+          {data[data.length - 2]!.value === 0
+            ? "100"
+            : (
+                (data[data.length - 1]!.value / data[data.length - 2]!.value) *
+                100
+              ).toFixed(2)}
+          %
+        </div>
+        <div className="ml-2 text-xs text-tertiary-text">from last month</div>
+      </div>
+      <div className="mt-2 h-48 w-full">
+        <Chart
+          className="flex items-center justify-center"
+          options={{
+            data: [
+              {
+                label: "Savings",
+                data: data.map((savings) => ({
+                  month: dayjs()
+                    .set("month", savings.month - 1)
+                    .format("MMM"),
+                  amount: savings.value,
+                })),
+              },
+            ],
+            primaryAxis: {
+              getValue: (datum) => (datum as SavingsData).month,
+              scaleType: "band",
+            },
+            secondaryAxes: [
+              {
+                getValue: (datum) => (datum as SavingsData).amount,
+                scaleType: "linear",
+                elementType: "line",
+              },
+            ],
+          }}
+        />
+      </div>
+    </Box>
+  );
+}
+
+function NameDataPieChartView({
+  name,
+  data,
+  average,
+}: {
+  name: string;
+  data: NameData[];
+  average: number;
+}) {
+  return (
+    <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
+      <h2 className="w-full text-2xl font-bold tracking-tight">{name}</h2>
+      <div className="h-96 w-full">
+        <PieChart
+          series={[
+            {
+              data: data.map((d, i) => ({
+                id: i,
+                value: d.value,
+                label:
+                  d.name +
+                  " " +
+                  ((
+                    (d.value / data.reduce((acc, cur) => acc + cur.value, 0)) *
+                    100
+                  ).toFixed(0) +
+                    "%"),
+              })),
+              innerRadius: 90,
+              outerRadius: 120,
+              paddingAngle:
+                data
+                  .filter((d) => d.value > 0)
+                  .reduce((acc: string[], cur: NameData) => {
+                    if (acc.includes(cur.name)) {
+                      return acc;
+                    }
+                    return [...acc, cur.name];
+                  }, []).length > 1
+                  ? 5
+                  : 0,
+              cornerRadius: 6,
+            },
+          ]}
+          slotProps={{
+            legend: {
+              direction: "row",
+              position: { vertical: "bottom", horizontal: "middle" },
+              padding: -5,
+            },
+          }}
+          options={{
+            tooltip: {
+              enabled: true,
+            },
+          }}
+          margin={{
+            top: -120,
+            right: 0,
+            bottom: 0,
+            left: 0,
+          }}
+        >
+          <PieCenterLabel average={average} />
+        </PieChart>
+      </div>
+    </Box>
+  );
+}
+
+const StyledText = styled("text")(({ theme }) => ({
+  fill: theme.palette.text.primary,
+  textAnchor: "middle",
+  dominantBaseline: "central",
+  fontSize: 20,
+}));
+
+function PieCenterLabel({ average }: { average: number }) {
+  const { width, height, left, top } = useDrawingArea();
+  return (
+    <StyledText x={left + width / 2} y={top + height / 2}>
+      <tspan x={left + width / 2} y={top + height / 2} dy={-20}>
+        Average
+      </tspan>
+      <tspan
+        x={left + width / 2}
+        y={top + height / 2}
+        dy={10}
+        className="text-3xl"
+      >
+        RM {average}k
+      </tspan>
+    </StyledText>
   );
 }
 

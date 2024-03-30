@@ -33,6 +33,7 @@ const config = {
       },
     ],
   },
+  transpilePackages: ["@mui/x-charts"],
 };
 
 export default config;

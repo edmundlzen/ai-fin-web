@@ -11,9 +11,9 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-* {
+/* * {
   color: #0b0d13;
-}
+} */
 
 svg {
   margin: 15px;
