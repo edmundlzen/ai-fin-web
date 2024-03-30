@@ -29,12 +29,18 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     // Logic to retrieve the JWT token from local storage or any other source
     const token = localStorage.getItem("access_token");
     // Logic to decode the JWT token and extract the user ID
-    const decodedToken = token ? jwtDecode<
-          { sub: string; exp: number; type: AccountType }
-    >(token) : null;
-    if (!decodedToken) {
+    const decodedToken = token
+      ? jwtDecode<{ sub: string; exp: number; type: AccountType }>(token)
+      : null;
+    if (
+      !decodedToken &&
+      window.location.pathname !== "/login" &&
+      window.location.pathname !== "/signup"
+    ) {
       localStorage.removeItem("access_token");
       window.location.href = "/login";
+      return;
+    } else if (!decodedToken) {
       return;
     }
     const { sub, exp, type } = decodedToken;
@@ -51,7 +57,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       }
     }
 
-    if (window.location.pathname === "admin") {
+    if (window.location.pathname === "/admin") {
       if (type !== AccountType.Admin) {
         window.location.href = "/";
       }

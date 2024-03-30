@@ -67,7 +67,7 @@ const TEST_SAVINGS_DATA = [
 ] as SavingsData[];
 
 const GET_USER_DATA = graphql(`
-  query User($userId: String!) {
+  query AdminUser($userId: String!) {
     user(id: $userId) {
       id
       email
@@ -101,14 +101,11 @@ const GET_USER_DATA = graphql(`
         createdAt
         updatedAt
       }
-      user_info {
-        createdAt
-      }
     }
   }
 `);
 
-export default function Dashboard() {
+export default function Admin() {
   const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const { data, loading, error, refetch } = useQuery<
@@ -121,11 +118,7 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    if (!data) return;
-    if (!data.user.user_info) {
-      // Redirect to quiz page if user has not completed the quiz
-      window.location.href = "/quiz";
-    }
+    console.log(data);
   }, [data]);
 
   if (loading || !data) {
@@ -141,17 +134,43 @@ export default function Dashboard() {
           void refetch();
         }}
       />
-      <TopBar title="Dashboard" />
-      <Box className="min-h-4/5 flex h-fit w-full flex-col items-center p-3">
-        <h2 className="w-full text-2xl font-bold tracking-tight">Hi Jim!</h2>
-        {dayjs(data.user.user_info!.createdAt as string).diff(dayjs(), "day") >
-          30 && (
-          <Message
-            title="Monthly financial survey"
-            message="Do you have time to help us answer these 5 questions?"
-            link="/quiz"
+      <TopBar title="Admin" />
+      <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
+        <h2 className="w-full text-2xl font-bold tracking-tight">
+          Total savings by users
+        </h2>
+        <div className="flex w-full items-baseline">
+          <h3 className="mt-1 text-4xl font-bold">RM 58,999</h3>
+          <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
+            <Icon icon="ant-design:rise-outlined" className="text-positive" />
+            25%
+          </div>
+          <div className="ml-2 text-xs text-tertiary-text">from last month</div>
+        </div>
+        <div className="mt-2 h-48 w-full">
+          <Chart
+            className="flex items-center justify-center"
+            options={{
+              data: [
+                {
+                  label: "Savings",
+                  data: TEST_SAVINGS_DATA,
+                },
+              ],
+              primaryAxis: {
+                getValue: (datum) => (datum as SavingsData).month,
+                scaleType: "band",
+              },
+              secondaryAxes: [
+                {
+                  getValue: (datum) => (datum as SavingsData).amount,
+                  scaleType: "linear",
+                  elementType: "line",
+                },
+              ],
+            }}
           />
-        )}
+        </div>
       </Box>
       <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
         <div className="flex w-full items-center justify-between">
@@ -266,43 +285,6 @@ export default function Dashboard() {
           </div>
         </Box>
       </Box>
-      <Box className="min-h-1/5 flex h-fit w-full flex-col items-center p-3">
-        <h2 className="w-full text-2xl font-bold tracking-tight">
-          Total savings
-        </h2>
-        <div className="flex w-full items-baseline">
-          <h3 className="mt-1 text-4xl font-bold">RM 58,999</h3>
-          <div className="ml-4 flex items-center justify-center gap-x-1 rounded-xl border border-positive-border bg-positive-background p-[0.1rem] px-1 text-xs font-bold text-positive">
-            <Icon icon="ant-design:rise-outlined" className="text-positive" />
-            25%
-          </div>
-          <div className="ml-2 text-xs text-tertiary-text">from last month</div>
-        </div>
-        <div className="mt-2 h-48 w-full">
-          <Chart
-            className="flex items-center justify-center"
-            options={{
-              data: [
-                {
-                  label: "Savings",
-                  data: TEST_SAVINGS_DATA,
-                },
-              ],
-              primaryAxis: {
-                getValue: (datum) => (datum as SavingsData).month,
-                scaleType: "band",
-              },
-              secondaryAxes: [
-                {
-                  getValue: (datum) => (datum as SavingsData).amount,
-                  scaleType: "linear",
-                  elementType: "line",
-                },
-              ],
-            }}
-          />
-        </div>
-      </Box>
     </main>
   );
 }
@@ -323,7 +305,7 @@ function Message({
         <h3 className="text-base font-semibold leading-tight">{title}</h3>
         <p className="mt-1 text-sm leading-tight">{message}</p>
       </div>
-      <button className="btn btn-primary">
+      <button className="flex w-fit items-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary">
         Open
         <Icon icon="ph:link-bold" className="ml-1 text-primary" />
       </button>
