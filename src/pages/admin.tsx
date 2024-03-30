@@ -11,6 +11,8 @@ import {
   AdminData,
   AnnualIncome,
   DateData,
+  EstimatedLiabilities,
+  EstimatedMonthlyExpenses,
   NameData,
   User,
 } from "~/gql/graphql";
@@ -25,6 +27,24 @@ const AnnualIncomeToAverage: Record<AnnualIncome, number> = {
   From50KTo100K: 75000,
   From100KTo200K: 150000,
   MoreThan200K: 250000,
+};
+
+const LiabilitiesToAverage: Record<EstimatedLiabilities, number> = {
+  LessThan10K: 5000,
+  From10KTo25K: 17500,
+  From25KTo50K: 37500,
+  From50KTo100K: 75000,
+  From100KTo200K: 150000,
+  MoreThan200K: 250000,
+};
+
+const MonthlyExpensesToAverage: Record<EstimatedMonthlyExpenses, number> = {
+  LessThan1K: 500,
+  From1KTo2K: 1500,
+  From2KTo3K: 2500,
+  From3KTo4K: 3500,
+  From4KTo5K: 4500,
+  MoreThan5K: 5500,
 };
 
 type SavingsData = {
@@ -134,6 +154,50 @@ export default function Admin() {
               0,
             ) /
             data.adminData.userAnnualIncomeStats.reduce(
+              (acc, cur) => acc + cur.value,
+              0,
+            ) /
+            1000
+          ).toFixed(1)
+        }
+      />
+      <NameDataPieChartView
+        name="User Liabilities Stats"
+        data={data.adminData.userLiabilitiesStats}
+        average={
+          +(
+            data.adminData.userLiabilitiesStats.reduce(
+              (acc, cur) =>
+                acc +
+                LiabilitiesToAverage[
+                  cur.name as keyof typeof LiabilitiesToAverage
+                ] *
+                  cur.value,
+              0,
+            ) /
+            data.adminData.userLiabilitiesStats.reduce(
+              (acc, cur) => acc + cur.value,
+              0,
+            ) /
+            1000
+          ).toFixed(1)
+        }
+      />
+      <NameDataPieChartView
+        name="User Monthly Expenses Stats"
+        data={data.adminData.userMonthlyExpenseStats}
+        average={
+          +(
+            data.adminData.userMonthlyExpenseStats.reduce(
+              (acc, cur) =>
+                acc +
+                MonthlyExpensesToAverage[
+                  cur.name as keyof typeof MonthlyExpensesToAverage
+                ] *
+                  cur.value,
+              0,
+            ) /
+            data.adminData.userMonthlyExpenseStats.reduce(
               (acc, cur) => acc + cur.value,
               0,
             ) /
