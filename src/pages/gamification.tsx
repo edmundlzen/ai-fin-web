@@ -9,6 +9,7 @@ import { Task, TaskTiming, TaskType } from "~/gql/graphql";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import Modal from "react-responsive-modal";
+import TopBar from "~/components/TopBar";
 
 const GET_USER_GAMIFICATION_INFO = graphql(`
   query UserGamificationInfo($userId: String!) {
@@ -179,9 +180,7 @@ export default function Gamification() {
           </div>
         </div>
       </Modal>
-      <div className="w-full">
-        <h1 className="font-serif text-5xl">Rewards</h1>
-      </div>
+      <TopBar title="Rewards" />
       <Box className="flex w-full flex-col items-start justify-start">
         <div className="mx-4 mt-3 flex items-center justify-center">
           <div>

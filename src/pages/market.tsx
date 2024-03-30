@@ -7,6 +7,7 @@ import Modal from "react-responsive-modal";
 import { graphql } from "~/gql";
 import { useMutation, useQuery } from "@apollo/client";
 import { News, NewsTopic, TaskType } from "~/gql/graphql";
+import TopBar from "~/components/TopBar";
 
 const GET_USER_NEWS_TOPIC_FOLLOWED = graphql(`
   query UserNewsTopicFollowed($userId: String!) {
@@ -68,7 +69,9 @@ export default function Market() {
     loading: newsLoading,
     error: newsError,
     refetch: refetchNews,
-  } = useQuery<{ News: Array<News> }, Record<string, never>>(GET_USER_NEWS);
+  } = useQuery<{ News: Array<News> }, Record<string, never>>(GET_USER_NEWS, {
+    notifyOnNetworkStatusChange: true,
+  });
   const [reportNewsClicked] = useMutation(REPORT_NEWS_CLICKED);
 
   return (
@@ -142,10 +145,8 @@ export default function Market() {
           </button>
         </div>
       </Modal>
-      <div className="w-full">
-        <h1 className="font-serif text-5xl">Market</h1>
-      </div>
-      <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center gap-y-4 p-3">
+      <TopBar title="Market" />
+      <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center gap-y-4 p-3 pt-0">
         <div className="flex w-full items-center justify-between">
           <h3 className="text-xl font-semibold tracking-tight">
             Recommended for you
@@ -160,29 +161,56 @@ export default function Market() {
             Edit
           </button>
         </div>
-        <div className="grid w-full grid-cols-1 gap-4">
-          {newsData?.News.map((news, i) => (
-            <NewsCard
-              key={news.title}
-              news={{
-                image:
-                  news.urlToImage ??
-                  `https://loremflickr.com/200/300/finance,${
-                    news.title.split(" ")[0]
-                  }?random=${i}`,
-                ...news,
-              }}
-              onClick={async () => {
-                await reportNewsClicked({
-                  variables: {
-                    reportActionInput: {
-                      taskType: TaskType.ReadingArticles,
+        <div className="grid min-h-96 w-full grid-cols-1 gap-4">
+          {loading || newsLoading ? (
+            <h3 className="mb-auto mt-auto text-center text-xl text-secondary-text">
+              Loading...
+            </h3>
+          ) : error ?? newsError ? (
+            <h3 className="mb-auto mt-auto text-center text-xl text-secondary-text">
+              Error fetching data
+            </h3>
+          ) : data?.user.news_topics_followed.length === 0 ? (
+            <div className="flex flex-col items-center justify-center">
+              <h3 className="mt-auto px-4 text-center text-xl text-secondary-text">
+                No topics selected.
+                <br />
+                Select some topics to get started
+              </h3>
+              <button
+                className="btn btn-primary mb-auto mt-2 max-w-48"
+                onClick={() => {
+                  setSelectedTopics(data?.user.news_topics_followed ?? []);
+                  setIsEditTopicsModalOpen(true);
+                }}
+              >
+                Select Topics
+              </button>
+            </div>
+          ) : (
+            newsData?.News.map((news, i) => (
+              <NewsCard
+                key={news.title}
+                news={{
+                  image:
+                    news.urlToImage ??
+                    `https://loremflickr.com/200/300/finance,${
+                      news.title.split(" ")[0]
+                    }?random=${i}`,
+                  ...news,
+                }}
+                onClick={async () => {
+                  await reportNewsClicked({
+                    variables: {
+                      reportActionInput: {
+                        taskType: TaskType.ReadingArticles,
+                      },
                     },
-                  },
-                });
-              }}
-            />
-          ))}
+                  });
+                }}
+              />
+            ))
+          )}
         </div>
       </Box>
     </main>

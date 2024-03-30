@@ -6,6 +6,7 @@ import {
 } from "~/components";
 import { Icon } from "@iconify-icon/react";
 import { useState } from "react";
+import TopBar from "~/components/TopBar";
 
 export default function AiStrategy() {
   const circleRadius = 50;
@@ -16,9 +17,7 @@ export default function AiStrategy() {
 
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
-      <div className="w-full">
-        <h1 className="font-serif text-5xl">AI Strategy</h1>
-      </div>
+      <TopBar title="AI Strategy" />
       <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center p-3">
         <h2 className="text-xl font-semibold tracking-tight">
           Based on your financial status

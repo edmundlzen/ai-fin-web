@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
-const useAuth = (): { userId: string | null } => {
+const useAuth = (): { userId: string | null; logout: () => void } => {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -16,7 +16,13 @@ const useAuth = (): { userId: string | null } => {
     }
   }, []);
 
-  return { userId };
+  const logout = () => {
+    localStorage.removeItem("access_token");
+    setUserId(null);
+    window.location.href = "/login";
+  };
+
+  return { userId, logout };
 };
 
 export default useAuth;

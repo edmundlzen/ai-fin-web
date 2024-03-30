@@ -8,8 +8,22 @@ import { ToastContainer } from "react-toastify";
 import client from "~/apolloClient";
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import {
+  Sidebar,
+  Menu,
+  SubMenu,
+  MenuItem,
+  sidebarClasses,
+} from "react-pro-sidebar";
+import useSidebarStore from "~/stores/sidebarStore";
+import useAuth from "~/hooks/useAuth";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
+  const sidebarIsOpen = useSidebarStore((state) => state.isOpen);
+  const closeSidebar = useSidebarStore((state) => state.close);
+  const toggleSidebar = useSidebarStore((state) => state.toggle);
+  const { logout } = useAuth();
+
   useEffect(() => {
     // Logic to retrieve the JWT token from local storage or any other source
     const token = localStorage.getItem("access_token");
@@ -31,6 +45,15 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     }
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      toggleSidebar();
+    }, 0.1);
+    setTimeout(() => {
+      closeSidebar();
+    }, 0.5);
+  }, []);
+
   return (
     <>
       <Head>
@@ -43,6 +66,78 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         </style>
       </Head>
       <ApolloProvider client={client}>
+        <Sidebar
+          toggled={sidebarIsOpen}
+          breakPoint="all"
+          onBackdropClick={closeSidebar}
+          rootStyles={{
+            [`.${sidebarClasses.container}`]: {
+              backgroundColor: "#f9fafc",
+            },
+            fontFamily: "Trocchi, serif",
+          }}
+        >
+          <Menu
+            className="h-full"
+            rootStyles={{
+              ["ul"]: {
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              },
+            }}
+          >
+            <MenuItem
+              onClick={() => {
+                window.location.href = "/";
+              }}
+            >
+              {" "}
+              Dashboard{" "}
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                window.location.href = "/financial-goals";
+              }}
+            >
+              {" "}
+              Goals{" "}
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                window.location.href = "/ai-strategy";
+              }}
+            >
+              {" "}
+              AI Strategy{" "}
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                window.location.href = "/gamification";
+              }}
+            >
+              {" "}
+              Rewards{" "}
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                window.location.href = "/market";
+              }}
+            >
+              {" "}
+              Market{" "}
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                logout();
+              }}
+              className="mt-auto"
+            >
+              {" "}
+              Logout{" "}
+            </MenuItem>
+          </Menu>
+        </Sidebar>
         <Component {...pageProps} />
         <ToastContainer />
       </ApolloProvider>

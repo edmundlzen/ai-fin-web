@@ -12,6 +12,7 @@ import { graphql } from "~/gql";
 import useAuth from "~/hooks/useAuth";
 import FinancialGoalModal from "~/components/FinancialGoalModal";
 import { toast } from "react-toastify";
+import TopBar from "~/components/TopBar";
 
 const GET_FINANCIAL_GOALS_DATA = graphql(`
   query FinancialGoalsData($userId: String!) {
@@ -151,9 +152,7 @@ export default function FinancialGoals() {
           await refetch();
         }}
       />
-      <div className="w-full">
-        <h1 className="font-serif text-5xl">Goals</h1>
-      </div>
+      <TopBar title="Goals" />
       <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center gap-y-4 p-3">
         {data?.user.financial_goal && data.user.financial_goal.length > 0 ? (
           data.user.financial_goal.map((goal) => (
