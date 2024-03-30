@@ -1,14 +1,17 @@
 import { CrudFinancialGoalModal, Box, Emoji } from "~/components";
 import { Icon } from "@iconify-icon/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Chart from "~/components/Chart";
 import FinancialGoalCard from "~/components/FinancialGoalCard";
 import useAuth from "~/hooks/useAuth";
 import { graphql } from "~/gql";
 import { useMutation, useQuery } from "@apollo/client";
-import { User } from "~/gql/graphql";
+import { NameData, News, User } from "~/gql/graphql";
 import dayjs from "dayjs";
 import TopBar from "~/components/TopBar";
+import { PieChart } from "@mui/x-charts/PieChart";
+import { useDrawingArea } from "@mui/x-charts/hooks";
+import { styled } from "@mui/material";
 
 type SavingsData = {
   month: string;
@@ -108,6 +111,24 @@ const GET_USER_DATA = graphql(`
   }
 `);
 
+const GET_USER_NEWS = graphql(`
+  query UserNewsIndex {
+    News {
+      source {
+        id
+        name
+      }
+      author
+      title
+      description
+      url
+      urlToImage
+      publishedAt
+      content
+    }
+  }
+`);
+
 export default function Dashboard() {
   const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
@@ -118,6 +139,37 @@ export default function Dashboard() {
     variables: {
       userId: userId ?? "",
     },
+  });
+  const currentSaved = useMemo(() => {
+    if (!data) return 0;
+    return data.user.wallet.transactions
+      .filter(
+        (transaction) =>
+          dayjs().diff(dayjs(transaction.createdAt as string), "day") < 30,
+      )
+      .reduce((acc, curr) => acc + curr.amount, 0);
+  }, [data, data?.user.wallet.transactions]);
+  const remainingGoal = useMemo(() => {
+    if (!data) return 0;
+    return (
+      data.user.financial_goal
+        .map((goal) => goal.amount)
+        .reduce((acc, curr) => acc + curr, 0) -
+      data.user.wallet.transactions
+        .filter(
+          (transaction) =>
+            dayjs().diff(dayjs(transaction.createdAt as string), "day") < 30,
+        )
+        .reduce((acc, curr) => acc + curr.amount, 0)
+    );
+  }, [data, data?.user.financial_goal, data?.user.wallet.transactions]);
+  const {
+    data: newsData,
+    loading: newsLoading,
+    error: newsError,
+    refetch: refetchNews,
+  } = useQuery<{ News: Array<News> }, Record<string, never>>(GET_USER_NEWS, {
+    notifyOnNetworkStatusChange: true,
   });
 
   useEffect(() => {
@@ -205,46 +257,125 @@ export default function Dashboard() {
               .filter(
                 (transaction) =>
                   dayjs().diff(dayjs(transaction.createdAt as string), "day") <
-                  30,
+                    60 &&
+                  dayjs().diff(dayjs(transaction.createdAt as string), "day") >
+                    30,
               )
-              .reduce((acc, curr) => acc + curr.amount, 0) /
-              data.user.wallet.transactions
-                .filter(
-                  (transaction) =>
-                    dayjs().diff(
-                      dayjs(transaction.createdAt as string),
-                      "day",
-                    ) < 30,
-                )
-                .reduce((acc, curr) => acc + curr.amount, 0) || 0}{" "}
+              .reduce((acc, curr) => acc + curr.amount, 0) === 0
+              ? "100"
+              : data.user.wallet.transactions
+                  .filter(
+                    (transaction) =>
+                      dayjs().diff(
+                        dayjs(transaction.createdAt as string),
+                        "day",
+                      ) < 30,
+                  )
+                  .reduce((acc, curr) => acc + curr.amount, 0) /
+                  data.user.wallet.transactions
+                    .filter(
+                      (transaction) =>
+                        dayjs().diff(
+                          dayjs(transaction.createdAt as string),
+                          "day",
+                        ) < 60 &&
+                        dayjs().diff(
+                          dayjs(transaction.createdAt as string),
+                          "day",
+                        ) > 30,
+                    )
+                    .reduce((acc, curr) => acc + curr.amount, 0) || 0}{" "}
             %
           </div>
           <div className="ml-2 text-xs text-tertiary-text">from last month</div>
         </div>
-        <div className="mt-2">
-          <CircleProgressBar
-            percentage={0}
-            amount={
-              data.user.financial_goal
-                .filter(
-                  (goal) =>
-                    dayjs().diff(dayjs(goal.createdAt as string), "day") <
-                    goal.months_to_reach_goal * 30,
-                )
-                .reduce((acc, curr) => acc + curr.amount, 0) || 0
-            }
-          />
+        <div className="mt-2 h-64 w-full">
+          <PieChart
+            series={[
+              {
+                data: [
+                  {
+                    label: "Saved",
+                    value: currentSaved,
+                    color: "#3e48d0",
+                  },
+                  {
+                    label: "Remaining",
+                    value: remainingGoal,
+                    color: "#d9d9d9",
+                  },
+                ],
+                innerRadius: 80,
+                outerRadius: 120,
+                paddingAngle:
+                  data.user.wallet.transactions
+                    .filter(
+                      (transaction) =>
+                        dayjs().diff(
+                          dayjs(transaction.createdAt as string),
+                          "day",
+                        ) < 30,
+                    )
+                    .reduce((acc, curr) => acc + curr.amount, 0) === 0
+                    ? 0
+                    : 5,
+                startAngle: -145,
+                endAngle: 145,
+                cornerRadius: 6,
+              },
+            ]}
+            slotProps={{
+              legend: {
+                hidden: true,
+              },
+            }}
+            options={{
+              tooltip: {
+                enabled: true,
+              },
+            }}
+            margin={{
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+            }}
+          >
+            <PieCenterLabel
+              monthlyGoal={data.user.financial_goal
+                .map((goal) => goal.amount)
+                .reduce((acc, curr) => acc + curr, 0)}
+            />
+          </PieChart>
         </div>
         <div className="mt-4 flex items-center gap-x-4">
           <div className="flex items-center text-sm text-tertiary-text">
             <div className="mr-1 h-4 w-4 rounded-md bg-[#3e48d0]" />
             Current saved
-            <span className="ml-2 font-bold text-tertiary-text">67%</span>
+            <span className="ml-2 font-bold text-tertiary-text">
+              {(
+                (currentSaved /
+                  data.user.financial_goal
+                    .map((goal) => goal.amount)
+                    .reduce((acc, curr) => acc + curr, 0)) *
+                100
+              ).toFixed(0)}
+              %
+            </span>
           </div>
           <div className="flex items-center text-sm text-tertiary-text">
             <div className="mr-1 h-4 w-4 rounded-md bg-[#d9d9d9]" />
             Remaining
-            <span className="ml-2 font-bold text-tertiary-text">33%</span>
+            <span className="ml-2 font-bold text-tertiary-text">
+              {(
+                (remainingGoal /
+                  data.user.financial_goal
+                    .map((goal) => goal.amount)
+                    .reduce((acc, curr) => acc + curr, 0)) *
+                100
+              ).toFixed(0)}
+              %
+            </span>
           </div>
         </div>
       </Box>
@@ -304,6 +435,36 @@ export default function Dashboard() {
         </div>
       </Box>
     </main>
+  );
+}
+
+const StyledText = styled("text")(({ theme }) => ({
+  fill: theme.palette.text.primary,
+  textAnchor: "middle",
+  dominantBaseline: "central",
+  fontSize: 20,
+}));
+
+function PieCenterLabel({ monthlyGoal }: { monthlyGoal: number }) {
+  const { width, height, left, top } = useDrawingArea();
+  return (
+    <StyledText
+      x={left + width / 2}
+      y={top + height / 2}
+      className="font-semibold"
+    >
+      <tspan x={left + width / 2} y={top + height / 2} dy={-20}>
+        Monthly goal
+      </tspan>
+      <tspan
+        x={left + width / 2}
+        y={top + height / 2}
+        dy={10}
+        className="text-3xl"
+      >
+        RM {monthlyGoal}
+      </tspan>
+    </StyledText>
   );
 }
 
