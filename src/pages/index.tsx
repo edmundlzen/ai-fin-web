@@ -180,7 +180,9 @@ export default function Dashboard() {
       />
       <TopBar title="Dashboard" />
       <Box className="min-h-4/5 flex h-fit w-full flex-col items-center p-3">
-        <h2 className="w-full text-2xl font-bold tracking-tight">Hi Jim!</h2>
+        <h2 className="w-full text-2xl font-bold tracking-tight capitalize">Hi {
+          data.user.username
+        }!</h2>
         {dayjs(data.user.user_info!.createdAt as string).diff(dayjs(), "day") >
           30 && (
           <Message

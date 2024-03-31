@@ -40,6 +40,7 @@ export default function AiStrategy() {
   const { data, loading } = useQuery<
     {
       user: {
+        username: string;
         user_info: UserInfo;
       };
     },
@@ -96,9 +97,27 @@ export default function AiStrategy() {
                 width="16"
                 height="16"
               >
-                <rect width="16" height="16" fill="#fff973" />
+                <rect
+                  width="16"
+                  height="16"
+                  fill={
+                    data.user.user_info.risk_tolerance === RiskTolerance.Low
+                      ? "#00bfa6"
+                      : data.user.user_info.risk_tolerance ===
+                          RiskTolerance.Medium
+                        ? "#fff973"
+                        : "#ff5f5f"
+                  }
+                />
                 <image
-                  xlinkHref="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='%23efef4c' fill-opacity='1.0'%3E%3Cpolygon fill-rule='evenodd' points='8 4 12 6 8 8 6 12 4 8 0 6 4 4 6 0 8 4'/%3E%3C/g%3E%3C/svg%3E"
+                  xlinkHref={`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='${
+                    data.user.user_info.risk_tolerance === RiskTolerance.Low
+                      ? "%2300DEC0"
+                      : data.user.user_info.risk_tolerance ===
+                          RiskTolerance.Medium
+                        ? "%23E3E300"
+                        : "%23FF0000"
+                  }' fill-opacity='1.0'%3E%3Cpolygon fill-rule='evenodd' points='8 4 12 6 8 8 6 12 4 8 0 6 4 4 6 0 8 4'/%3E%3C/g%3E%3C/svg%3E`}
                   width="16"
                   height="16"
                 />
@@ -127,12 +146,19 @@ export default function AiStrategy() {
           <div className="text-md absolute -top-2 left-0 flex h-full w-full flex-col items-center justify-center px-16 text-center">
             We recommend a
             <span className="text-2xl font-semibold">
-              Moderate Risk Strategy
+              {data.user.user_info.risk_tolerance === RiskTolerance.Low
+                ? "Low"
+                : data.user.user_info.risk_tolerance === RiskTolerance.Medium
+                  ? "Moderate"
+                  : "High"}{" "}
+              Risk Strategy
             </span>
           </div>
         </div>
         <div>
-          <div className="text-xl font-semibold">Hi Jim!</div>
+          <div className="text-xl font-semibold capitalize">
+            Hi {data.user.username}!
+          </div>
           <div className="text-sm font-medium">
             Based on your monthly income of{" "}
             <span

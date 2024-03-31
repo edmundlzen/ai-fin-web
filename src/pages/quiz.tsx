@@ -42,6 +42,7 @@ const SUBMIT_QUIZ = graphql(`
 export const GET_EXISTING_USER_INFO = graphql(`
   query UserInfo($userId: String!) {
     user(id: $userId) {
+      username
       user_info {
         userId
         annual_income
