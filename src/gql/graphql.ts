@@ -36,9 +36,10 @@ export type AdminData = {
 
 export type AiStrategy = {
   __typename?: 'AiStrategy';
-  expensesRatio: Scalars['Float']['output'];
-  turnoverRatio: Scalars['Float']['output'];
-  unitTrustFundRecommendations: Array<UnitTrustFund>;
+  expensesRatio?: Maybe<Scalars['Float']['output']>;
+  loading: Scalars['Boolean']['output'];
+  turnoverRatio?: Maybe<Scalars['Float']['output']>;
+  unitTrustFundRecommendations?: Maybe<Array<UnitTrustFund>>;
 };
 
 export enum AnnualIncome {
@@ -524,7 +525,7 @@ export type AdminDataQuery = { __typename?: 'Query', adminData: { __typename?: '
 export type AiStrategyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AiStrategyQuery = { __typename?: 'Query', aiStrategy: { __typename?: 'AiStrategy', expensesRatio: number, turnoverRatio: number, unitTrustFundRecommendations: Array<{ __typename?: 'UnitTrustFund', fundName: string, imageUrl: string, expenseRatio: number, turnoverRatio: number, riskLevel: string, phsUrl: string }> } };
+export type AiStrategyQuery = { __typename?: 'Query', aiStrategy: { __typename?: 'AiStrategy', expensesRatio?: number | null, turnoverRatio?: number | null, unitTrustFundRecommendations?: Array<{ __typename?: 'UnitTrustFund', fundName: string, imageUrl: string, expenseRatio: number, turnoverRatio: number, riskLevel: string, phsUrl: string }> | null } };
 
 export type FinancialGoalsDataQueryVariables = Exact<{
   userId: Scalars['String']['input'];
