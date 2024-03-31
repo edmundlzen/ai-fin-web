@@ -32,6 +32,7 @@ const documents = {
     "\n  query UserNews {\n    News {\n      source {\n        id\n        name\n      }\n      author\n      title\n      description\n      url\n      urlToImage\n      publishedAt\n      content\n    }\n  }\n": types.UserNewsDocument,
     "\n  mutation ReportNewsClicked($reportActionInput: ReportActionInput!) {\n    reportAction(reportActionInput: $reportActionInput) {\n      success\n    }\n  }\n": types.ReportNewsClickedDocument,
     "\n  mutation CreateOrUpdateUserInfo(\n    $createOrUpdateUserInfoInput: CreateOrUpdateUserInfoInput!\n  ) {\n    createOrUpdateUserInfo(\n      createOrUpdateUserInfoInput: $createOrUpdateUserInfoInput\n    ) {\n      userId\n      updatedAt\n    }\n  }\n": types.CreateOrUpdateUserInfoDocument,
+    "\n  query UserInfo($userId: String!) {\n    user(id: $userId) {\n      user_info {\n        userId\n        annual_income\n        estimated_liabilities\n        estimated_monthly_expenses\n        invested_before\n        risk_tolerance\n        expected_annual_return\n        investment_horizon\n        createdAt\n        updatedAt\n      }\n    }\n  }\n": types.UserInfoDocument,
     "\n  mutation SignupUser($signupUserInput: SignupUserInput!) {\n    signupUser(signupUserInput: $signupUserInput) {\n      access_token\n    }\n  }\n": types.SignupUserDocument,
 };
 
@@ -125,6 +126,10 @@ export function graphql(source: "\n  mutation ReportNewsClicked($reportActionInp
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation CreateOrUpdateUserInfo(\n    $createOrUpdateUserInfoInput: CreateOrUpdateUserInfoInput!\n  ) {\n    createOrUpdateUserInfo(\n      createOrUpdateUserInfoInput: $createOrUpdateUserInfoInput\n    ) {\n      userId\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateOrUpdateUserInfo(\n    $createOrUpdateUserInfoInput: CreateOrUpdateUserInfoInput!\n  ) {\n    createOrUpdateUserInfo(\n      createOrUpdateUserInfoInput: $createOrUpdateUserInfoInput\n    ) {\n      userId\n      updatedAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query UserInfo($userId: String!) {\n    user(id: $userId) {\n      user_info {\n        userId\n        annual_income\n        estimated_liabilities\n        estimated_monthly_expenses\n        invested_before\n        risk_tolerance\n        expected_annual_return\n        investment_horizon\n        createdAt\n        updatedAt\n      }\n    }\n  }\n"): (typeof documents)["\n  query UserInfo($userId: String!) {\n    user(id: $userId) {\n      user_info {\n        userId\n        annual_income\n        estimated_liabilities\n        estimated_monthly_expenses\n        invested_before\n        risk_tolerance\n        expected_annual_return\n        investment_horizon\n        createdAt\n        updatedAt\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

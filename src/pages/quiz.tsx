@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import {
   ExpectedAnnualReturn,
   InvestmentHorizon,
   RiskTolerance,
+  UserInfo,
 } from "~/gql/graphql";
 import useAuth from "~/hooks/useAuth";
 
@@ -38,23 +39,62 @@ const SUBMIT_QUIZ = graphql(`
   }
 `);
 
+export const GET_EXISTING_USER_INFO = graphql(`
+  query UserInfo($userId: String!) {
+    user(id: $userId) {
+      user_info {
+        userId
+        annual_income
+        estimated_liabilities
+        estimated_monthly_expenses
+        invested_before
+        risk_tolerance
+        expected_annual_return
+        investment_horizon
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`);
+
 export default function Quiz() {
   const [activeSection, setActiveSection] = useState(0);
   const [reverse, setReverse] = useState(false);
+  const { data: existingUserInfo, loading: existingUserInfoLoading } = useQuery<
+    {
+      user: {
+        user_info: UserInfo;
+      };
+    },
+    { userId: string }
+  >(GET_EXISTING_USER_INFO, {
+    variables: { userId: useAuth().userId ?? "" },
+  });
   const [mutateFunction, { data, loading, error }] = useMutation(SUBMIT_QUIZ);
   const { userId } = useAuth();
+
+  if (existingUserInfoLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <main className="flex h-screen items-center justify-center overflow-y-scroll bg-[length:100px_100px] heropattern-wiggle-slate-50">
       <Formik
         initialValues={{
-          annualIncome: "",
-          estimatedLiabilities: "",
-          estimatedMonthlyExpenses: "",
-          investedBefore: "",
-          riskTolerance: "",
-          expectedAnnualReturn: "",
-          investmentHorizon: "",
+          annualIncome: existingUserInfo?.user?.user_info?.annual_income ?? "",
+          estimatedLiabilities:
+            existingUserInfo?.user?.user_info?.estimated_liabilities ?? "",
+          estimatedMonthlyExpenses:
+            existingUserInfo?.user?.user_info?.estimated_monthly_expenses ?? "",
+          investedBefore:
+            existingUserInfo?.user?.user_info?.invested_before ?? "",
+          riskTolerance:
+            existingUserInfo?.user?.user_info?.risk_tolerance ?? "",
+          expectedAnnualReturn:
+            existingUserInfo?.user?.user_info?.expected_annual_return ?? "",
+          investmentHorizon:
+            existingUserInfo?.user?.user_info?.investment_horizon ?? "",
         }}
         validationSchema={SignUpSchema}
         onSubmit={async (values) => {

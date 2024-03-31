@@ -34,6 +34,13 @@ export type AdminData = {
   userMonthlyExpenseStats: Array<NameData>;
 };
 
+export type AiStrategy = {
+  __typename?: 'AiStrategy';
+  expensesRatio: Scalars['Float']['output'];
+  turnoverRatio: Scalars['Float']['output'];
+  unitTrustFundRecommendations: Array<UnitTrustFund>;
+};
+
 export enum AnnualIncome {
   From10KTo25K = 'From10KTo25K',
   From25KTo50K = 'From25KTo50K',
@@ -268,6 +275,7 @@ export type Query = {
   Voucher: Array<Voucher>;
   Wallet: Wallet;
   adminData: AdminData;
+  aiStrategy: AiStrategy;
   financialGoal: FinancialGoal;
   user: User;
 };
@@ -368,6 +376,16 @@ export type Transaction = {
   updatedAt: Scalars['DateTime']['output'];
   wallet: Wallet;
   wallet_id: Scalars['String']['output'];
+};
+
+export type UnitTrustFund = {
+  __typename?: 'UnitTrustFund';
+  expenseRatio: Scalars['Float']['output'];
+  fundName: Scalars['String']['output'];
+  imageUrl: Scalars['String']['output'];
+  phsUrl: Scalars['String']['output'];
+  riskLevel: Scalars['String']['output'];
+  turnoverRatio: Scalars['Float']['output'];
 };
 
 export type UpdateFinancialGoalInput = {
@@ -597,6 +615,13 @@ export type CreateOrUpdateUserInfoMutationVariables = Exact<{
 
 export type CreateOrUpdateUserInfoMutation = { __typename?: 'Mutation', createOrUpdateUserInfo: { __typename?: 'UserInfo', userId: string, updatedAt: any } };
 
+export type UserInfoQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type UserInfoQuery = { __typename?: 'Query', user: { __typename?: 'User', user_info?: { __typename?: 'UserInfo', userId: string, annual_income: AnnualIncome, estimated_liabilities: EstimatedLiabilities, estimated_monthly_expenses: EstimatedMonthlyExpenses, invested_before: boolean, risk_tolerance: RiskTolerance, expected_annual_return: ExpectedAnnualReturn, investment_horizon: InvestmentHorizon, createdAt: any, updatedAt: any } | null } };
+
 export type SignupUserMutationVariables = Exact<{
   signupUserInput: SignupUserInput;
 }>;
@@ -624,4 +649,5 @@ export const UpdateUserNewsTopicFollowedDocument = {"kind":"Document","definitio
 export const UserNewsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserNews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"News"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"source"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"author"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"urlToImage"}},{"kind":"Field","name":{"kind":"Name","value":"publishedAt"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<UserNewsQuery, UserNewsQueryVariables>;
 export const ReportNewsClickedDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ReportNewsClicked"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reportActionInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ReportActionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reportAction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"reportActionInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reportActionInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}}]}}]}}]} as unknown as DocumentNode<ReportNewsClickedMutation, ReportNewsClickedMutationVariables>;
 export const CreateOrUpdateUserInfoDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateOrUpdateUserInfo"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateOrUpdateUserInfoInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createOrUpdateUserInfo"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateOrUpdateUserInfoMutation, CreateOrUpdateUserInfoMutationVariables>;
+export const UserInfoDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserInfo"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user_info"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"annual_income"}},{"kind":"Field","name":{"kind":"Name","value":"estimated_liabilities"}},{"kind":"Field","name":{"kind":"Name","value":"estimated_monthly_expenses"}},{"kind":"Field","name":{"kind":"Name","value":"invested_before"}},{"kind":"Field","name":{"kind":"Name","value":"risk_tolerance"}},{"kind":"Field","name":{"kind":"Name","value":"expected_annual_return"}},{"kind":"Field","name":{"kind":"Name","value":"investment_horizon"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<UserInfoQuery, UserInfoQueryVariables>;
 export const SignupUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignupUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"signupUserInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SignupUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signupUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"signupUserInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"signupUserInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"access_token"}}]}}]}}]} as unknown as DocumentNode<SignupUserMutation, SignupUserMutationVariables>;
