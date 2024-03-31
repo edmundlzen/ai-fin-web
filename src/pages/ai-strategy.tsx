@@ -7,6 +7,29 @@ import {
 import { Icon } from "@iconify-icon/react";
 import { useState } from "react";
 import TopBar from "~/components/TopBar";
+import { useQuery } from "@apollo/client";
+import { RiskTolerance, UserInfo } from "~/gql/graphql";
+import { GET_EXISTING_USER_INFO } from "./quiz";
+import useAuth from "~/hooks/useAuth";
+import { AnnualIncomeToAverage } from "./admin";
+import { graphql } from "~/gql";
+
+const GET_AI_RECOMMENDATION = graphql(`
+  query AiStrategy {
+    aiStrategy {
+      expensesRatio
+      turnoverRatio
+      unitTrustFundRecommendations {
+        fundName
+        imageUrl
+        expenseRatio
+        turnoverRatio
+        riskLevel
+        phsUrl
+      }
+    }
+  }
+`);
 
 export default function AiStrategy() {
   const circleRadius = 50;
@@ -14,6 +37,30 @@ export default function AiStrategy() {
   const circleCircumference = 2 * Math.PI * circleRadius;
   const maxCircleCircumference = circleCircumference * 0.75;
   const [displayedPercentage, setDisplayedPercentage] = useState(0);
+  const { data, loading } = useQuery<
+    {
+      user: {
+        user_info: UserInfo;
+      };
+    },
+    { userId: string }
+  >(GET_EXISTING_USER_INFO, {
+    variables: { userId: useAuth().userId ?? "" },
+  });
+  const {
+    data: aiRecommendationData,
+    loading: aiRecommendationLoading,
+    error: aiRecommendationError,
+    refetch: refetchAiRecommendation,
+  } = useQuery(GET_AI_RECOMMENDATION);
+
+  if (!data || loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
@@ -83,10 +130,21 @@ export default function AiStrategy() {
                 textDecorationSkipInk: "none",
               }}
             >
-              RM5,000
+              RM
+              {(
+                AnnualIncomeToAverage[
+                  data.user.user_info
+                    .annual_income as keyof typeof AnnualIncomeToAverage
+                ] / 12
+              ).toFixed(0)}
             </span>
-            , we recommend investing 10% of it to unit trust funds with the
-            following criteria:
+            , we recommend investing{" "}
+            {data.user.user_info.risk_tolerance === RiskTolerance.Low
+              ? "10"
+              : data.user.user_info.risk_tolerance === RiskTolerance.Medium
+                ? "20"
+                : "30"}
+            % of it to unit trust funds with the following criteria:
           </div>
           <div className="mt-5 text-lg font-semibold leading-6">
             Expenses ratio: &lt; 0.5%

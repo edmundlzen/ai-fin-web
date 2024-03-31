@@ -20,7 +20,7 @@ import dayjs from "dayjs";
 import TopBar from "~/components/TopBar";
 import { styled } from "@mui/material";
 
-const AnnualIncomeToAverage: Record<AnnualIncome, number> = {
+export const AnnualIncomeToAverage: Record<AnnualIncome, number> = {
   LessThan10K: 5000,
   From10KTo25K: 17500,
   From25KTo50K: 37500,
@@ -29,7 +29,7 @@ const AnnualIncomeToAverage: Record<AnnualIncome, number> = {
   MoreThan200K: 250000,
 };
 
-const LiabilitiesToAverage: Record<EstimatedLiabilities, number> = {
+export const LiabilitiesToAverage: Record<EstimatedLiabilities, number> = {
   LessThan10K: 5000,
   From10KTo25K: 17500,
   From25KTo50K: 37500,
@@ -38,7 +38,10 @@ const LiabilitiesToAverage: Record<EstimatedLiabilities, number> = {
   MoreThan200K: 250000,
 };
 
-const MonthlyExpensesToAverage: Record<EstimatedMonthlyExpenses, number> = {
+export const MonthlyExpensesToAverage: Record<
+  EstimatedMonthlyExpenses,
+  number
+> = {
   LessThan1K: 500,
   From1KTo2K: 1500,
   From2KTo3K: 2500,
