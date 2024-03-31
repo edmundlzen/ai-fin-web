@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ApolloProvider } from "@apollo/client";
 import { ToastContainer } from "react-toastify";
 import client from "~/apolloClient";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import {
   Sidebar,
@@ -24,6 +24,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   const sidebarIsOpen = useSidebarStore((state) => state.isOpen);
   const closeSidebar = useSidebarStore((state) => state.close);
   const toggleSidebar = useSidebarStore((state) => state.toggle);
+  const [userType, setUserType] = useState<AccountType>(AccountType.User);
   const { logout } = useAuth();
 
   useEffect(() => {
@@ -45,6 +46,10 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       return;
     }
     const { sub, exp, type } = decodedToken;
+
+    if (type) {
+      setUserType(type);
+    }
 
     if ((exp ?? 0) > Date.now()) {
       localStorage.removeItem("access_token");
@@ -101,66 +106,113 @@ const MyApp: AppType = ({ Component, pageProps }) => {
             fontFamily: "Trocchi, serif",
           }}
         >
-          <Menu
-            className="h-full"
-            rootStyles={{
-              ["ul"]: {
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-              },
-            }}
-          >
-            <MenuItem
-              onClick={() => {
-                window.location.href = "/";
+          {userType === AccountType.Admin ? (
+            <Menu
+              className="h-full"
+              rootStyles={{
+                ["ul"]: {
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                },
               }}
             >
-              {" "}
-              Dashboard{" "}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                window.location.href = "/financial-goals";
+              <MenuItem
+                onClick={() => {
+                  window.location.href = "/admin";
+                }}
+              >
+                {" "}
+                Admin Dashboard{" "}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  window.location.href = "/coupons";
+                }}
+              >
+                {" "}
+                Coupons{" "}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  window.location.href = "/tasks";
+                }}
+              >
+                {" "}
+                Tasks{" "}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  logout();
+                }}
+                className="mt-auto"
+              >
+                {" "}
+                Logout{" "}
+              </MenuItem>
+            </Menu>
+          ) : (
+            <Menu
+              className="h-full"
+              rootStyles={{
+                ["ul"]: {
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                },
               }}
             >
-              {" "}
-              Goals{" "}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                window.location.href = "/ai-strategy";
-              }}
-            >
-              {" "}
-              AI Strategy{" "}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                window.location.href = "/gamification";
-              }}
-            >
-              {" "}
-              Rewards{" "}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                window.location.href = "/market";
-              }}
-            >
-              {" "}
-              Market{" "}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                logout();
-              }}
-              className="mt-auto"
-            >
-              {" "}
-              Logout{" "}
-            </MenuItem>
-          </Menu>
+              <MenuItem
+                onClick={() => {
+                  window.location.href = "/";
+                }}
+              >
+                {" "}
+                Dashboard{" "}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  window.location.href = "/financial-goals";
+                }}
+              >
+                {" "}
+                Goals{" "}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  window.location.href = "/ai-strategy";
+                }}
+              >
+                {" "}
+                AI Strategy{" "}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  window.location.href = "/gamification";
+                }}
+              >
+                {" "}
+                Rewards{" "}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  window.location.href = "/market";
+                }}
+              >
+                {" "}
+                Market{" "}
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  logout();
+                }}
+                className="mt-auto"
+              >
+                {" "}
+                Logout{" "}
+              </MenuItem>
+            </Menu>
+          )}
         </Sidebar>
         <Component {...pageProps} />
         <ToastContainer />
