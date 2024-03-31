@@ -221,8 +221,8 @@ const RecommendedFundCard = ({
           className="w-16"
           src={imageUrl || "https://via.placeholder.com/150"}
         />
-        <div className="ml-3 flex-1 text-lg font-semibold leading-snug">
-          {fundName}
+        <div className="ml-3 flex-1 text-lg font-semibold capitalize leading-snug">
+          {fundName.toLowerCase()}
         </div>
       </div>
       <div className="mt-2 grid w-full grid-cols-[20%_80%] gap-x-3 gap-y-2">
@@ -258,10 +258,15 @@ const RecommendedFundCard = ({
         </div>
       </div>
       <div className="mt-8 flex w-full flex-col gap-y-4">
-        <button className="flex items-center justify-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary transition-all hover:scale-95 active:scale-90">
+        <a
+          href={"/phs/" + `phs_${fundName}.pdf`}
+          target="_blank"
+          rel="noreferrer"
+          className="btn btn-primary m-3 rounded-xl p-3 px-5"
+        >
           PHS
           <Icon icon="ph:link-bold" className="ml-1 text-primary" />
-        </button>
+        </a>
         {/* <button className="flex items-center justify-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary transition-all hover:scale-95 active:scale-90">
           Prospectus
           <Icon icon="ph:link-bold" className="ml-1 text-primary" />
