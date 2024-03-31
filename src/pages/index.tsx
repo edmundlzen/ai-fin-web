@@ -210,6 +210,9 @@ export default function Dashboard() {
                 key={goal.id}
                 financialGoal={goal}
                 wallet={data.user.wallet}
+                onClick={() => {
+                  window.location.href = "/financial-goals";
+                }}
               />
             ))
           ) : (
