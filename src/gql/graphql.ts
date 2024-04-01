@@ -96,6 +96,14 @@ export type CreateTransactionInput = {
   wallet_id: Scalars['String']['input'];
 };
 
+export type CreateVoucherInput = {
+  code: Scalars['String']['input'];
+  imageUrl: Scalars['String']['input'];
+  levelRequired: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  terms: Scalars['String']['input'];
+};
+
 export type DateData = {
   __typename?: 'DateData';
   month: Scalars['Int']['output'];
@@ -160,14 +168,17 @@ export type Mutation = {
   createFinancialGoal: FinancialGoal;
   createOrUpdateUserInfo: UserInfo;
   createTransaction: Transaction;
+  createVoucher: Voucher;
   removeFinancialGoal: FinancialGoal;
   removeTransaction: Transaction;
+  removeVoucher: Voucher;
   reportAction: SuccessResult;
   signinUser: Jwt;
   signupUser: Jwt;
   updateFinancialGoal: FinancialGoal;
   updateTransaction: Transaction;
   updateUser: User;
+  updateVoucher: Voucher;
 };
 
 
@@ -196,12 +207,22 @@ export type MutationCreateTransactionArgs = {
 };
 
 
+export type MutationCreateVoucherArgs = {
+  createVoucherInput: CreateVoucherInput;
+};
+
+
 export type MutationRemoveFinancialGoalArgs = {
   id: Scalars['String']['input'];
 };
 
 
 export type MutationRemoveTransactionArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveVoucherArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -233,6 +254,11 @@ export type MutationUpdateTransactionArgs = {
 
 export type MutationUpdateUserArgs = {
   updateUserInput: UpdateUserInput;
+};
+
+
+export type MutationUpdateVoucherArgs = {
+  updateVoucherInput: UpdateVoucherInput;
 };
 
 export type NameData = {
@@ -423,6 +449,15 @@ export type UpdateUserInput = {
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateVoucherInput = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['String']['input'];
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  levelRequired?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  terms?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type User = {
   __typename?: 'User';
   account_type: AccountType;
@@ -472,6 +507,7 @@ export type UserInfo = {
 
 export type Voucher = {
   __typename?: 'Voucher';
+  code: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
   imageUrl: Scalars['String']['output'];
@@ -502,6 +538,27 @@ export type UpdateFinancialGoalMutationVariables = Exact<{
 
 
 export type UpdateFinancialGoalMutation = { __typename?: 'Mutation', updateFinancialGoal: { __typename?: 'FinancialGoal', id: string, name: string, emoji: string, amount: number, months_to_reach_goal: number, createdAt: any, updatedAt: any } };
+
+export type CreateVoucherMutationVariables = Exact<{
+  createVoucherInput: CreateVoucherInput;
+}>;
+
+
+export type CreateVoucherMutation = { __typename?: 'Mutation', createVoucher: { __typename?: 'Voucher', id: string, imageUrl: string, name: string, levelRequired: number, terms: string, createdAt: any, updatedAt: any } };
+
+export type UpdateVoucherMutationVariables = Exact<{
+  updateVoucherInput: UpdateVoucherInput;
+}>;
+
+
+export type UpdateVoucherMutation = { __typename?: 'Mutation', updateVoucher: { __typename?: 'Voucher', id: string, imageUrl: string, name: string, levelRequired: number, terms: string, createdAt: any, updatedAt: any } };
+
+export type RemoveVoucherMutationVariables = Exact<{
+  removeVoucherId: Scalars['String']['input'];
+}>;
+
+
+export type RemoveVoucherMutation = { __typename?: 'Mutation', removeVoucher: { __typename?: 'Voucher', id: string } };
 
 export type CreateTransactionMutationVariables = Exact<{
   createTransactionInput: CreateTransactionInput;
@@ -638,11 +695,14 @@ export type SignupUserMutation = { __typename?: 'Mutation', signupUser: { __type
 export type GetAllVouchersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllVouchersQuery = { __typename?: 'Query', voucher: Array<{ __typename?: 'Voucher', id: string, imageUrl: string, name: string, levelRequired: number, terms: string, createdAt: any, updatedAt: any }> };
+export type GetAllVouchersQuery = { __typename?: 'Query', voucher: Array<{ __typename?: 'Voucher', id: string, imageUrl: string, name: string, levelRequired: number, terms: string, createdAt: any, updatedAt: any, code: string }> };
 
 
 export const CreateFinancialGoalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateFinancialGoal"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"createFinancialGoalInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateFinancialGoalInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createFinancialGoal"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"createFinancialGoalInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"createFinancialGoalInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"months_to_reach_goal"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateFinancialGoalMutation, CreateFinancialGoalMutationVariables>;
 export const UpdateFinancialGoalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateFinancialGoal"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"updateFinancialGoalInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateFinancialGoalInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateFinancialGoal"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"updateFinancialGoalInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"updateFinancialGoalInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emoji"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"months_to_reach_goal"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdateFinancialGoalMutation, UpdateFinancialGoalMutationVariables>;
+export const CreateVoucherDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateVoucher"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"createVoucherInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateVoucherInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createVoucher"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"createVoucherInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"createVoucherInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"levelRequired"}},{"kind":"Field","name":{"kind":"Name","value":"terms"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateVoucherMutation, CreateVoucherMutationVariables>;
+export const UpdateVoucherDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateVoucher"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"updateVoucherInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateVoucherInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateVoucher"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"updateVoucherInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"updateVoucherInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"levelRequired"}},{"kind":"Field","name":{"kind":"Name","value":"terms"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdateVoucherMutation, UpdateVoucherMutationVariables>;
+export const RemoveVoucherDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveVoucher"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"removeVoucherId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeVoucher"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"removeVoucherId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<RemoveVoucherMutation, RemoveVoucherMutationVariables>;
 export const CreateTransactionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateTransaction"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"createTransactionInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateTransactionInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createTransaction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"createTransactionInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"createTransactionInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"wallet_id"}},{"kind":"Field","name":{"kind":"Name","value":"financial_goal_id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateTransactionMutation, CreateTransactionMutationVariables>;
 export const RemoveTransactionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveTransaction"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"removeTransactionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeTransaction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"removeTransactionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<RemoveTransactionMutation, RemoveTransactionMutationVariables>;
 export const AdminDataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AdminData"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"adminData"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalUsersSavings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"month"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalActiveUsers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"month"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalUsers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"month"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"newUsers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"month"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"userAnnualIncomeStats"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"userLiabilitiesStats"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"userMonthlyExpenseStats"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}}]}}]} as unknown as DocumentNode<AdminDataQuery, AdminDataQueryVariables>;
@@ -663,4 +723,4 @@ export const ReportNewsClickedDocument = {"kind":"Document","definitions":[{"kin
 export const CreateOrUpdateUserInfoDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateOrUpdateUserInfo"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateOrUpdateUserInfoInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createOrUpdateUserInfo"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"createOrUpdateUserInfoInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateOrUpdateUserInfoMutation, CreateOrUpdateUserInfoMutationVariables>;
 export const UserInfoDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"UserInfo"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"user_info"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"annual_income"}},{"kind":"Field","name":{"kind":"Name","value":"estimated_liabilities"}},{"kind":"Field","name":{"kind":"Name","value":"estimated_monthly_expenses"}},{"kind":"Field","name":{"kind":"Name","value":"invested_before"}},{"kind":"Field","name":{"kind":"Name","value":"risk_tolerance"}},{"kind":"Field","name":{"kind":"Name","value":"expected_annual_return"}},{"kind":"Field","name":{"kind":"Name","value":"investment_horizon"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]} as unknown as DocumentNode<UserInfoQuery, UserInfoQueryVariables>;
 export const SignupUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignupUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"signupUserInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SignupUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signupUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"signupUserInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"signupUserInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"access_token"}}]}}]}}]} as unknown as DocumentNode<SignupUserMutation, SignupUserMutationVariables>;
-export const GetAllVouchersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllVouchers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"voucher"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"levelRequired"}},{"kind":"Field","name":{"kind":"Name","value":"terms"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetAllVouchersQuery, GetAllVouchersQueryVariables>;
+export const GetAllVouchersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllVouchers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"voucher"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"levelRequired"}},{"kind":"Field","name":{"kind":"Name","value":"terms"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"code"}}]}}]}}]} as unknown as DocumentNode<GetAllVouchersQuery, GetAllVouchersQueryVariables>;

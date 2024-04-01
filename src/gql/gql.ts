@@ -15,6 +15,9 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
     "\n  mutation CreateFinancialGoal(\n    $createFinancialGoalInput: CreateFinancialGoalInput!\n  ) {\n    createFinancialGoal(createFinancialGoalInput: $createFinancialGoalInput) {\n      id\n      name\n      emoji\n      amount\n      months_to_reach_goal\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateFinancialGoalDocument,
     "\n  mutation UpdateFinancialGoal(\n    $updateFinancialGoalInput: UpdateFinancialGoalInput!\n  ) {\n    updateFinancialGoal(updateFinancialGoalInput: $updateFinancialGoalInput) {\n      id\n      name\n      emoji\n      amount\n      months_to_reach_goal\n      createdAt\n      updatedAt\n    }\n  }\n": types.UpdateFinancialGoalDocument,
+    "\n  mutation CreateVoucher($createVoucherInput: CreateVoucherInput!) {\n    createVoucher(createVoucherInput: $createVoucherInput) {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateVoucherDocument,
+    "\n  mutation UpdateVoucher($updateVoucherInput: UpdateVoucherInput!) {\n    updateVoucher(updateVoucherInput: $updateVoucherInput) {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n": types.UpdateVoucherDocument,
+    "\n  mutation RemoveVoucher($removeVoucherId: String!) {\n    removeVoucher(id: $removeVoucherId) {\n      id\n    }\n  }\n": types.RemoveVoucherDocument,
     "\n  mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {\n    createTransaction(createTransactionInput: $createTransactionInput) {\n      id\n      amount\n      wallet_id\n      financial_goal_id\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateTransactionDocument,
     "\n  mutation RemoveTransaction($removeTransactionId: String!) {\n    removeTransaction(id: $removeTransactionId) {\n      id\n    }\n  }\n": types.RemoveTransactionDocument,
     "\n  query AdminData {\n    adminData {\n      totalUsersSavings {\n        month\n        year\n        value\n      }\n      totalActiveUsers {\n        month\n        year\n        value\n      }\n      totalUsers {\n        month\n        year\n        value\n      }\n      newUsers {\n        month\n        year\n        value\n      }\n      userAnnualIncomeStats {\n        name\n        value\n      }\n      userLiabilitiesStats {\n        name\n        value\n      }\n      userMonthlyExpenseStats {\n        name\n        value\n      }\n    }\n  }\n": types.AdminDataDocument,
@@ -35,7 +38,7 @@ const documents = {
     "\n  mutation CreateOrUpdateUserInfo(\n    $createOrUpdateUserInfoInput: CreateOrUpdateUserInfoInput!\n  ) {\n    createOrUpdateUserInfo(\n      createOrUpdateUserInfoInput: $createOrUpdateUserInfoInput\n    ) {\n      userId\n      updatedAt\n    }\n  }\n": types.CreateOrUpdateUserInfoDocument,
     "\n  query UserInfo($userId: String!) {\n    user(id: $userId) {\n      username\n      user_info {\n        userId\n        annual_income\n        estimated_liabilities\n        estimated_monthly_expenses\n        invested_before\n        risk_tolerance\n        expected_annual_return\n        investment_horizon\n        createdAt\n        updatedAt\n      }\n    }\n  }\n": types.UserInfoDocument,
     "\n  mutation SignupUser($signupUserInput: SignupUserInput!) {\n    signupUser(signupUserInput: $signupUserInput) {\n      access_token\n    }\n  }\n": types.SignupUserDocument,
-    "\n  query GetAllVouchers {\n    voucher {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetAllVouchersDocument,
+    "\n  query GetAllVouchers {\n    voucher {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n      code\n    }\n  }\n": types.GetAllVouchersDocument,
 };
 
 /**
@@ -60,6 +63,18 @@ export function graphql(source: "\n  mutation CreateFinancialGoal(\n    $createF
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation UpdateFinancialGoal(\n    $updateFinancialGoalInput: UpdateFinancialGoalInput!\n  ) {\n    updateFinancialGoal(updateFinancialGoalInput: $updateFinancialGoalInput) {\n      id\n      name\n      emoji\n      amount\n      months_to_reach_goal\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateFinancialGoal(\n    $updateFinancialGoalInput: UpdateFinancialGoalInput!\n  ) {\n    updateFinancialGoal(updateFinancialGoalInput: $updateFinancialGoalInput) {\n      id\n      name\n      emoji\n      amount\n      months_to_reach_goal\n      createdAt\n      updatedAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateVoucher($createVoucherInput: CreateVoucherInput!) {\n    createVoucher(createVoucherInput: $createVoucherInput) {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateVoucher($createVoucherInput: CreateVoucherInput!) {\n    createVoucher(createVoucherInput: $createVoucherInput) {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdateVoucher($updateVoucherInput: UpdateVoucherInput!) {\n    updateVoucher(updateVoucherInput: $updateVoucherInput) {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation UpdateVoucher($updateVoucherInput: UpdateVoucherInput!) {\n    updateVoucher(updateVoucherInput: $updateVoucherInput) {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation RemoveVoucher($removeVoucherId: String!) {\n    removeVoucher(id: $removeVoucherId) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation RemoveVoucher($removeVoucherId: String!) {\n    removeVoucher(id: $removeVoucherId) {\n      id\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -143,7 +158,7 @@ export function graphql(source: "\n  mutation SignupUser($signupUserInput: Signu
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetAllVouchers {\n    voucher {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  query GetAllVouchers {\n    voucher {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n    }\n  }\n"];
+export function graphql(source: "\n  query GetAllVouchers {\n    voucher {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n      code\n    }\n  }\n"): (typeof documents)["\n  query GetAllVouchers {\n    voucher {\n      id\n      imageUrl\n      name\n      levelRequired\n      terms\n      createdAt\n      updatedAt\n      code\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

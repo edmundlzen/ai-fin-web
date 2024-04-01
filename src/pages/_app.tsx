@@ -97,6 +97,13 @@ const MyApp: AppType = ({ Component, pageProps }) => {
               />
               <NavButton
                 onClick={() => {
+                  void router.push("/vouchers");
+                  closeSidebar();
+                }}
+                text="Vouchers"
+              />
+              <NavButton
+                onClick={() => {
                   logout();
                   closeSidebar();
                 }}

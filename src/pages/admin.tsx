@@ -1,10 +1,9 @@
-import { CrudFinancialGoalModal, Box } from "~/components";
+import { Box } from "~/components";
 import { Icon } from "@iconify-icon/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Chart from "~/components/Chart";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { useDrawingArea } from "@mui/x-charts/hooks";
-import useAuth from "~/hooks/useAuth";
 import { graphql } from "~/gql";
 import { useQuery } from "@apollo/client";
 import {
@@ -94,7 +93,6 @@ const GET_ADMIN_DATA = graphql(`
 `);
 
 export default function Admin() {
-  const [goalModalOpen, setGoalModalOpen] = useState(false);
   const { data, loading, refetch } = useQuery<{ adminData: AdminData }>(
     GET_ADMIN_DATA,
   );
@@ -109,13 +107,6 @@ export default function Admin() {
 
   return (
     <main className="flex h-screen flex-col justify-start gap-y-4 overflow-y-scroll bg-background p-4 first-letter:items-center">
-      <CrudFinancialGoalModal
-        isOpen={goalModalOpen}
-        onClose={() => setGoalModalOpen(false)}
-        onSuccess={() => {
-          void refetch();
-        }}
-      />
       <TopBar title="Admin" />
       <DateDataChartView
         name="Total savings by users"
