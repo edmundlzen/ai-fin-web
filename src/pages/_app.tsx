@@ -13,6 +13,7 @@ import useAuth from "~/hooks/useAuth";
 import { AccountType } from "~/gql/graphql";
 import { AppCacheProvider } from "@mui/material-nextjs/v13-pagesRouter";
 import { Drawer } from "@mui/material";
+import { useRouter } from "next/router";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const sidebarIsOpen = useSidebarStore((state) => state.isOpen);
@@ -20,6 +21,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
   const toggleSidebar = useSidebarStore((state) => state.toggle);
   const [userType, setUserType] = useState<AccountType>(AccountType.User);
   const { logout } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     // Logic to retrieve the JWT token from local storage or any other source
@@ -81,131 +83,95 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       </Head>
       <ApolloProvider client={client}>
         <Drawer open={sidebarIsOpen} onClose={closeSidebar}>
-          Test
-        </Drawer>
-        {/* <Sidebar
-          toggled={sidebarIsOpen}
-          breakPoint="all"
-          onBackdropClick={closeSidebar}
-          rootStyles={{
-            [`.${sidebarClasses.container}`]: {
-              backgroundColor: "#f9fafc",
-            },
-            fontFamily: "Trocchi, serif",
-          }}
-        >
           {userType === AccountType.Admin ? (
-            <Menu
-              className="h-full"
-              rootStyles={{
-                ["ul"]: {
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                },
-              }}
-            >
-              <MenuItem
+            <div className="flex h-full w-48 flex-col items-center justify-start p-2">
+              <NavButton
                 onClick={() => {
-                  window.location.href = "/admin";
+                  void router.push("/admin");
+                  closeSidebar();
                 }}
-              >
-                {" "}
-                Admin Dashboard{" "}
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  window.location.href = "/coupons";
-                }}
-              >
-                {" "}
-                Coupons{" "}
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  window.location.href = "/tasks";
-                }}
-              >
-                {" "}
-                Tasks{" "}
-              </MenuItem>
-              <MenuItem
+                text="Admin Dashboard"
+              />
+              <NavButton
                 onClick={() => {
                   logout();
+                  closeSidebar();
                 }}
+                text="Logout"
                 className="mt-auto"
-              >
-                {" "}
-                Logout{" "}
-              </MenuItem>
-            </Menu>
+              />
+            </div>
           ) : (
-            <Menu
-              className="h-full"
-              rootStyles={{
-                ["ul"]: {
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                },
-              }}
-            >
-              <MenuItem
+            <div className="flex h-16 items-center justify-center bg-primary">
+              <NavButton
                 onClick={() => {
-                  window.location.href = "/";
+                  void router.push("/");
+                  closeSidebar();
                 }}
-              >
-                {" "}
-                Dashboard{" "}
-              </MenuItem>
-              <MenuItem
+                text="Dashboard"
+              />
+              <NavButton
                 onClick={() => {
-                  window.location.href = "/financial-goals";
+                  void router.push("/financial-goals");
+                  closeSidebar();
                 }}
-              >
-                {" "}
-                Goals{" "}
-              </MenuItem>
-              <MenuItem
+                text="Goals"
+              />
+              <NavButton
                 onClick={() => {
-                  window.location.href = "/ai-strategy";
+                  void router.push("/ai-strategy");
+                  closeSidebar();
                 }}
-              >
-                {" "}
-                AI Strategy{" "}
-              </MenuItem>
-              <MenuItem
+                text="AI Strategy"
+              />
+              <NavButton
                 onClick={() => {
-                  window.location.href = "/gamification";
+                  void router.push("/gamification");
+                  closeSidebar();
                 }}
-              >
-                {" "}
-                Rewards{" "}
-              </MenuItem>
-              <MenuItem
+                text="Rewards"
+              />
+              <NavButton
                 onClick={() => {
-                  window.location.href = "/market";
+                  void router.push("/market");
+                  closeSidebar();
                 }}
-              >
-                {" "}
-                Market{" "}
-              </MenuItem>
-              <MenuItem
+                text="Market"
+              />
+              <NavButton
                 onClick={() => {
                   logout();
+                  closeSidebar();
                 }}
+                text="Logout"
                 className="mt-auto"
-              >
-                {" "}
-                Logout{" "}
-              </MenuItem>
-            </Menu>
+              />
+            </div>
           )}
-        </Sidebar> */}
+        </Drawer>
         <Component {...pageProps} />
         <ToastContainer />
       </ApolloProvider>
     </AppCacheProvider>
+  );
+};
+
+const NavButton = ({
+  text,
+  onClick,
+  className,
+}: {
+  text: string;
+  onClick: () => void;
+  className?: string;
+}) => {
+  return (
+    <button
+      className={"btn btn-ghost w-full !text-black" + " " + className}
+      onClick={onClick}
+    >
+      {text}
+    </button>
   );
 };
 
