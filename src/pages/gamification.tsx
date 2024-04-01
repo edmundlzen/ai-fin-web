@@ -55,7 +55,7 @@ const CLAIM_REWARD = graphql(`
 
 const GET_VOUCHERS = graphql(`
   query Voucher {
-    Voucher {
+    voucher {
       id
       imageUrl
       name
@@ -113,7 +113,7 @@ export default function Gamification() {
     refetch: refetchVouchers,
   } = useQuery<
     {
-      Voucher: {
+      voucher: {
         id: string;
         imageUrl: string;
         name: string;
@@ -133,7 +133,7 @@ export default function Gamification() {
   >(CLAIM_VOUCHER);
   const eligibleVouchers = useMemo(() => {
     return data && vouchersData
-      ? vouchersData?.Voucher.filter(
+      ? vouchersData?.voucher.filter(
           (voucher) =>
             voucher.levelRequired <= data.user.level &&
             !data.user.claimedVoucher.find(
@@ -348,7 +348,7 @@ export default function Gamification() {
               : data?.user.claimedVoucher
                   .filter((claimedVoucher) => claimedVoucher.userId === userId)
                   .map((claimedVoucher) => {
-                    const voucher = vouchersData?.Voucher.find(
+                    const voucher = vouchersData?.voucher.find(
                       (voucher) => voucher.id === claimedVoucher.voucherId,
                     );
                     return (

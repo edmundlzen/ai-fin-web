@@ -59,7 +59,10 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       }
     }
 
-    if (window.location.pathname === "/admin") {
+    if (
+      window.location.pathname === "/admin" ||
+      window.location.pathname === "/vouchers"
+    ) {
       if (type !== AccountType.Admin) {
         window.location.href = "/";
       }
