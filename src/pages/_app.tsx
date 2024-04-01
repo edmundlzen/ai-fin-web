@@ -8,17 +8,11 @@ import { ToastContainer } from "react-toastify";
 import client from "~/apolloClient";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import {
-  Sidebar,
-  Menu,
-  SubMenu,
-  MenuItem,
-  sidebarClasses,
-} from "react-pro-sidebar";
 import useSidebarStore from "~/stores/sidebarStore";
 import useAuth from "~/hooks/useAuth";
 import { AccountType } from "~/gql/graphql";
 import { AppCacheProvider } from "@mui/material-nextjs/v13-pagesRouter";
+import { Drawer } from "@mui/material";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   const sidebarIsOpen = useSidebarStore((state) => state.isOpen);
@@ -74,15 +68,6 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     }
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      toggleSidebar();
-    }, 0.1);
-    setTimeout(() => {
-      closeSidebar();
-    }, 0.5);
-  }, []);
-
   return (
     <AppCacheProvider {...pageProps}>
       <Head>
@@ -95,7 +80,10 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         </style>
       </Head>
       <ApolloProvider client={client}>
-        <Sidebar
+        <Drawer open={sidebarIsOpen} onClose={closeSidebar}>
+          Test
+        </Drawer>
+        {/* <Sidebar
           toggled={sidebarIsOpen}
           breakPoint="all"
           onBackdropClick={closeSidebar}
@@ -213,7 +201,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
               </MenuItem>
             </Menu>
           )}
-        </Sidebar>
+        </Sidebar> */}
         <Component {...pageProps} />
         <ToastContainer />
       </ApolloProvider>

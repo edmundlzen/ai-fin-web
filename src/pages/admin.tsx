@@ -1,4 +1,4 @@
-import { CrudFinancialGoalModal, Box, Emoji } from "~/components";
+import { CrudFinancialGoalModal, Box } from "~/components";
 import { Icon } from "@iconify-icon/react";
 import { useEffect, useState } from "react";
 import Chart from "~/components/Chart";
@@ -6,15 +6,14 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { useDrawingArea } from "@mui/x-charts/hooks";
 import useAuth from "~/hooks/useAuth";
 import { graphql } from "~/gql";
-import { useMutation, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import {
-  AdminData,
-  AnnualIncome,
-  DateData,
-  EstimatedLiabilities,
-  EstimatedMonthlyExpenses,
-  NameData,
-  User,
+  type AdminData,
+  type AnnualIncome,
+  type DateData,
+  type EstimatedLiabilities,
+  type EstimatedMonthlyExpenses,
+  type NameData,
 } from "~/gql/graphql";
 import dayjs from "dayjs";
 import TopBar from "~/components/TopBar";
@@ -95,9 +94,8 @@ const GET_ADMIN_DATA = graphql(`
 `);
 
 export default function Admin() {
-  const { userId } = useAuth();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
-  const { data, loading, error, refetch } = useQuery<{ adminData: AdminData }>(
+  const { data, loading, refetch } = useQuery<{ adminData: AdminData }>(
     GET_ADMIN_DATA,
   );
 
@@ -235,7 +233,7 @@ function DateDataChartView({
             : (
                 (data[data.length - 1]!.value / data[data.length - 2]!.value) *
                 100
-              ).toFixed(2)}
+              ).toFixed(0)}
           %
         </div>
         <div className="ml-2 text-xs text-tertiary-text">from last month</div>
@@ -312,7 +310,7 @@ function NameDataPieChartView({
                     }
                     return [...acc, cur.name];
                   }, []).length > 1
-                  ? 5
+                  ? 2
                   : 0,
               cornerRadius: 6,
             },
@@ -366,160 +364,5 @@ function PieCenterLabel({ average }: { average: number }) {
         RM {average}k
       </tspan>
     </StyledText>
-  );
-}
-
-function Message({
-  title,
-  message,
-  link,
-}: {
-  title: string;
-  message: string;
-  // TODO: Implement link
-  link: string;
-}) {
-  return (
-    <Box className="mt-2 flex w-full items-center justify-center p-3">
-      <div className="mr-2 flex flex-1 flex-col">
-        <h3 className="text-base font-semibold leading-tight">{title}</h3>
-        <p className="mt-1 text-sm leading-tight">{message}</p>
-      </div>
-      <button className="flex w-fit items-center rounded-xl border border-secondary bg-tertiary p-3 px-5 text-sm font-bold text-primary">
-        Open
-        <Icon icon="ph:link-bold" className="ml-1 text-primary" />
-      </button>
-    </Box>
-  );
-}
-
-function CircleProgressBar({
-  percentage,
-  amount,
-}: {
-  percentage: number;
-  amount: number;
-}) {
-  const circleRadius = 50;
-  const totalSpace = 0.2;
-  const circleCircumference = 2 * Math.PI * circleRadius;
-  const maxCircleCircumference = circleCircumference * 0.75;
-  const [displayedPercentage, setDisplayedPercentage] = useState(0);
-
-  useEffect(() => {
-    console.log(
-      (
-        (displayedPercentage * maxCircleCircumference) / 100 -
-        ((totalSpace / 2) *
-          maxCircleCircumference *
-          (100 - displayedPercentage)) /
-          100
-      )
-        .toFixed(2)
-        .toString() +
-        ", " +
-        circleCircumference.toFixed(2).toString(),
-    );
-    setDisplayedPercentage(Math.min(Math.max(percentage, 0), 100));
-  }, [percentage]);
-
-  return (
-    <div className="relative">
-      <svg
-        className="loader-svg"
-        width="280"
-        height="280"
-        viewBox="0 0 130 130"
-      >
-        {displayedPercentage < 50 && (
-          <>
-            <circle
-              className="loader primary"
-              cx="65"
-              cy="65"
-              r={circleRadius}
-              style={{
-                strokeDasharray:
-                  (
-                    (displayedPercentage * maxCircleCircumference) / 100 -
-                    ((totalSpace / 2) *
-                      maxCircleCircumference *
-                      (100 - displayedPercentage)) /
-                      100
-                  )
-                    .toFixed(2)
-                    .toString() +
-                  ", " +
-                  circleCircumference.toFixed(2).toString(),
-                transform: "rotate(135deg)",
-              }}
-            />
-            <circle
-              className="loader grey"
-              cx="65"
-              cy="65"
-              r={circleRadius}
-              style={{
-                strokeDasharray:
-                  maxCircleCircumference -
-                  (displayedPercentage * maxCircleCircumference) / 100 -
-                  ((totalSpace / 2) *
-                    maxCircleCircumference *
-                    displayedPercentage) /
-                    100 +
-                  ", " +
-                  circleCircumference,
-                transform: `scaleX(-1) rotate(135deg)`,
-              }}
-            />
-          </>
-        )}
-        {displayedPercentage > 50 && (
-          <>
-            <circle
-              className="loader grey"
-              cx="65"
-              cy="65"
-              r={circleRadius}
-              style={{
-                strokeDasharray:
-                  maxCircleCircumference -
-                  (displayedPercentage * maxCircleCircumference) / 100 -
-                  ((totalSpace / 2) *
-                    maxCircleCircumference *
-                    displayedPercentage) /
-                    100 +
-                  ", " +
-                  circleCircumference,
-                transform: `scaleX(-1) rotate(135deg)`,
-              }}
-            />
-            <circle
-              className="loader primary"
-              cx="65"
-              cy="65"
-              r={circleRadius}
-              style={{
-                strokeDasharray:
-                  (
-                    (displayedPercentage * maxCircleCircumference) / 100 -
-                    ((totalSpace / 2) *
-                      maxCircleCircumference *
-                      (100 - displayedPercentage)) /
-                      100
-                  ).toFixed(2) +
-                  ", " +
-                  circleCircumference.toFixed(2),
-                transform: "rotate(135deg)",
-              }}
-            />
-          </>
-        )}
-      </svg>
-      <div className="absolute -top-2 left-0 flex h-full w-full flex-col items-center justify-center text-lg font-bold">
-        Monthly goal
-        <span className="text-3xl">RM {amount.toLocaleString("en-MY")}</span>
-      </div>
-    </div>
   );
 }
