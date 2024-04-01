@@ -102,7 +102,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
               />
             </div>
           ) : (
-            <div className="flex h-16 items-center justify-center bg-primary">
+            <div className="flex h-full w-48 flex-col items-center justify-start p-2">
               <NavButton
                 onClick={() => {
                   void router.push("/");

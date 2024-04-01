@@ -6,7 +6,7 @@ import FinancialGoalCard from "~/components/FinancialGoalCard";
 import useAuth from "~/hooks/useAuth";
 import { graphql } from "~/gql";
 import { useMutation, useQuery } from "@apollo/client";
-import { NameData, News, TaskType, User } from "~/gql/graphql";
+import { NameData, type News, TaskType, type User } from "~/gql/graphql";
 import dayjs from "dayjs";
 import TopBar from "~/components/TopBar";
 import { PieChart } from "@mui/x-charts/PieChart";
@@ -165,7 +165,7 @@ export default function Dashboard() {
     }
   }, [data]);
 
-  if (loading || !data) {
+  if (loading || !data?.user?.user_info) {
     return <p>Loading...</p>;
   }
 
@@ -180,10 +180,10 @@ export default function Dashboard() {
       />
       <TopBar title="Dashboard" />
       <Box className="min-h-4/5 flex h-fit w-full flex-col items-center p-3">
-        <h2 className="w-full text-2xl font-bold tracking-tight capitalize">Hi {
-          data.user.username
-        }!</h2>
-        {dayjs(data.user.user_info!.createdAt as string).diff(dayjs(), "day") >
+        <h2 className="w-full text-2xl font-bold capitalize tracking-tight">
+          Hi {data.user.username}!
+        </h2>
+        {dayjs(data.user.user_info.createdAt as string).diff(dayjs(), "day") >
           30 && (
           <Message
             title="Monthly financial survey"
@@ -218,9 +218,11 @@ export default function Dashboard() {
               />
             ))
           ) : (
-            <div className="flex w-full items-center justify-center gap-x-2">
-              <Emoji name="direct-hit" />
-              <p className="text-pretty">No financial goals set yet</p>
+            <div className="flex w-full flex-col items-center justify-center gap-x-2">
+              <Emoji name="direct-hit" className="ml-4" />
+              <p className="mt-2 text-pretty font-semibold">
+                No financial goals set yet
+              </p>
             </div>
           )}
         </div>

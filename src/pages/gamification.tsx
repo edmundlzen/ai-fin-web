@@ -110,6 +110,7 @@ export default function Gamification() {
     data: vouchersData,
     loading: vouchersLoading,
     error: vouchersError,
+    refetch: refetchVouchers,
   } = useQuery<
     {
       Voucher: {
@@ -338,6 +339,8 @@ export default function Gamification() {
                       await claimVoucher({
                         variables: { voucherId: voucher.id },
                       });
+                      await refetch();
+                      await refetchVouchers();
                       toast.success("Reward claimed successfully!");
                     }}
                   />

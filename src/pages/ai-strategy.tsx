@@ -185,17 +185,23 @@ export default function AiStrategy() {
                 : "30"}
             % of it to unit trust funds with the following criteria:
           </div>
-          <div className="mt-5 text-lg font-semibold leading-6">
-            Expenses ratio: &lt;{" "}
-            {aiRecommendationData?.aiStrategy?.expensesRatio}%
-            <br />
-            Turnover ratio: &lt;{" "}
-            {aiRecommendationData?.aiStrategy?.turnoverRatio}%
-          </div>
-          <div className="mt-5 text-sm font-medium">
-            We have suggested a few unit trust funds for you based on these
-            criteria.
-          </div>
+          {aiRecommendationLoading ? (
+            <div className="mt-4 text-2xl font-bold">Loading...</div>
+          ) : (
+            <>
+              <div className="mt-5 text-lg font-semibold leading-6">
+                Expenses ratio: &lt;{" "}
+                {aiRecommendationData?.aiStrategy?.expensesRatio}%
+                <br />
+                Turnover ratio: &lt;{" "}
+                {aiRecommendationData?.aiStrategy?.turnoverRatio}%
+              </div>
+              <div className="mt-5 text-sm font-medium">
+                We have suggested a few unit trust funds for you based on these
+                criteria.
+              </div>
+            </>
+          )}
         </div>
       </Box>
       <Box className="min-h-4/5 flex h-fit w-full flex-col items-start justify-center p-3">

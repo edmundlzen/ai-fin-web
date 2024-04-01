@@ -100,10 +100,7 @@ export default function Market() {
                   " $1",
                 )
                 .trim()}
-              image={`https://loremflickr.com/400/500/finance,${topic.replace(
-                /_/g,
-                ",",
-              )}?lock=${topic}`}
+              image={"/images/" + topic + ".jpg"}
               onClick={() => {
                 setSelectedTopics((prev) =>
                   prev.includes(topic)
